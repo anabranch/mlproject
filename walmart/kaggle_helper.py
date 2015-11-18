@@ -2,6 +2,15 @@ import sqlite3
 import datetime
 
 
+def get_notes():
+    notes = input("Enter Notes to save to DB: ")
+    if notes == "":
+        print("Notes cannot be blank, please enter some notes")
+        raise ValueError
+
+    return notes
+
+
 class KaggleHelper:
     def __init__(self, dbfilepath, output_folder):
         self.dbfilepath = dbfilepath
@@ -43,15 +52,21 @@ class KaggleHelper:
         if not self.conn or not self.cur:
             self.open_conn()
 
-    def save_validation_score(self, clf, accuracy, train_length, notes=""):
+    def save_validation_score(self, clf, accuracy, train_length):
         self.check_conn()
+
+        notes = get_notes()
+
         now = int(datetime.datetime.now().timestamp())
         self.cur.execute("""INSERT INTO validation_scores VALUES
              (?,?,?,?,?)""", (now, accuracy, str(clf), train_length, notes))
         self.conn.commit()
 
-    def save_test_predictions(self, predictions, clf, train_length, notes=""):
+    def save_test_predictions(self, predictions, clf, train_length):
         self.check_conn()
+
+        notes = get_notes()
+
         now = int(datetime.datetime.now().timestamp())
         fname = str(now) + ".csv"
         self.cur.execute("""INSERT INTO submissions VALUES
