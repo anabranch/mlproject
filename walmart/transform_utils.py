@@ -20,7 +20,7 @@ def transform_group(df, groupby_col, include_tripType=False):
     return df.groupby(groupby_col).agg(convert_dict)
 
 
-def convert_prediction(predictions, **kwargs):
+def convert_predictions(predictions, **kwargs):
     predictions = pd.Series(predictions)
     output_index = kwargs['output_index']
     actual_trip_types = kwargs['actual_trip_types']
