@@ -42,10 +42,10 @@ class KaggleHelper:
     def check_conn(self):
         if not self.conn or not self.cur:
             self.open_conn()
-            
-    def save_validation_score(self, clf, accuracy, train_length, notes=""): 
+
+    def save_validation_score(self, clf, accuracy, train_length, notes=""):
         self.check_conn()
-       now = int(datetime.datetime.now().timestamp())
+        now = int(datetime.datetime.now().timestamp())
         self.cur.execute("""INSERT INTO validation_scores VALUES
              (?,?,?,?,?)""", (now, accuracy, str(clf), train_length, notes))
         self.conn.commit()
@@ -61,5 +61,6 @@ class KaggleHelper:
 
     def get_max_validation_score(self):
         self.check_conn()
-        for row in c.execute("SELECT * FROM validation_scores group by accuracy having max(accuracy)"):
+        for row in c.execute(
+            "SELECT * FROM validation_scores group by accuracy having max(accuracy)"):
             print(row)
