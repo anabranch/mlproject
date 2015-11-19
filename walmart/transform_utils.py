@@ -28,11 +28,10 @@ def convert_predictions(predictions, **kwargs):
     output_index = kwargs['output_index']
     actual_trip_types = kwargs['actual_trip_types']
     output = pd.get_dummies(predictions)
-    output.columns = ["TripType_%i" % x for x in output.columns]
-    missing_tt = ["TripType_%i" % x for x in list(
-        set(actual_trip_types).difference(set(predictions.unique())))]
-    print("Missing Trip Types:", missing_tt)
-    for x in missing_tt:
-        output[x] = 0
+    missing_categories = set(actual_trip_types).difference(set(output.columns))
+    for missing in missing_categories:
+        output[missing] = 0
+    print("Missing Categories", missing_categories)
     output = output[sorted(output.columns)]
-    return pd.concat([pd.Series(output_index), output], axis=1)
+    output.columns = ["TripType_%i" % x for x in output.columns]
+    return pd.concat([pd.Series(output_index), output], axis=1).astype(int)
