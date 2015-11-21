@@ -8,7 +8,7 @@ def preprocess_walmart(df, train=False):
     keep_cols = ['VisitNumber', 'ScanCount', 'Returns']
     if train:
         keep_cols.append("TripType")
-    df = transform_column(df, 'DepartmentDescription', keep_cols)
+    df = transform_column(df, ['DepartmentDescription', 'Weekday'], keep_cols)
     return transform_group(df, 'VisitNumber', train)
 
 
