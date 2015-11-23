@@ -1,0 +1,39 @@
+Video instructions:
+
+  • One video per group
+  • 
+The video should be clear and understandable, describing everything that you think is important about your project (e.g., motivation, description, techniques, results)
+  • 
+The video needs to be self-contained: any CS189/289 student should be able to understand what you did (at least at the high level) without consulting any extra material
+  • 
+You can make the video as simple as having slides with a voice overlay, or as fancy as your imagination allows.
+  • 
+As long as it is clear and understandable, you will not be graded on the fanciness of the video. Content is what will matter. Of course, you may have more fun in making a fancy video and also impress the world with your creativity.
+  • 
+You must upload the video on Youtube and provide us with the link (a subsequent Piazza post will give a link to submit your URL). You may choose to keep the video private (i.e., only those with the link can view it) in which case only the teaching team will view it. You can alternatively let us know if you are fine with making the video public in which case we will put the link up online.
+  • 
+Important: The video can be at most 3 minutes long. This is a very very strict requirement (a video of length 3 minutes and 1 second does not count; the length is counted as whatever Youtube says). In case you are worried about how you will fit in the entire class project in just three minutes, take a look at these videos which fit an entire PhD thesis in 3 minutes (aptly called "threesis" videos).
+  • 
+The deadline is December 11, 11.59pm
+  • 
+Note that you also have to submit a final report.
+
+
+
+Grading:
+
+- 50% for the video
+
+- 50% for the report
+
+Each of these two will be graded with 5 criteria having a 0-5 grade:
+
+- relevance (to machine learning)
+
+- usefulness/impact of the application
+
+- soundness (of algorithms, proofs and/or experiments; including using an independent test set and computing error bars)
+
+- novelty/originality
+
+- clarity (good presentation, enough and good figures and graphs)

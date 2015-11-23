@@ -2,13 +2,12 @@ import pandas as pd
 import numpy as np
 
 
-def preprocess_walmart(df, train=False):
+def preprocess_walmart(df, cols_to_transform, keep_cols, train=False):
     df['Returns'] = df.ScanCount.map(lambda x: abs(x) if x < 0 else 0)
     df.ScanCount = df.ScanCount.map(lambda x: 0 if x < 0 else x)
-    keep_cols = ['VisitNumber', 'ScanCount', 'Returns']
     if train:
         keep_cols.append("TripType")
-    df = transform_column(df, ['DepartmentDescription', 'Weekday'], keep_cols)
+    df = transform_column(df, cols_to_transform, keep_cols)
     return transform_group(df, 'VisitNumber', train)
 
 
@@ -17,10 +16,19 @@ def transform_column(df, colname, keep_columns):
     return pd.concat([df[keep_columns], dummied], axis=1)
 
 
-def transform_group(df, groupby_col, train=False):
-    convert_dict = {x: np.sum for x in df.columns.tolist()}
+def generate_convert_dict(col_list, func, train=False):
+    convert_dict = {x: func for x in col_list}
     if train: convert_dict['TripType'] = np.mean
-    return df.groupby(groupby_col).agg(convert_dict)
+    return convert_dict
+
+
+def transform_group(df, groupby_col, train=False):
+    col_list = df.columns.tolist()
+    first = df.groupby(groupby_col).agg(generate_convert_dict(col_list, np.sum,
+                                                              train))
+    second = df.groupby(groupby_col).agg(
+        generate_convert_dict(col_list, np.count_nonzero, train))
+    return pd.concat([first, second], axis=1)
 
 
 def convert_predictions(predictions, **kwargs):
