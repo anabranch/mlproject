@@ -23,14 +23,12 @@ def generate_convert_dict(col_list, func, train=False):
 
 def transform_group(df, groupby_col, train=False):
     col_list = df.columns.tolist()
+    col_list.remove("TripType")
     f1 = generate_convert_dict(col_list, np.sum, train)
     f2 = generate_convert_dict(col_list, np.count_nonzero, train)
     if train: f1['TripType'] = np.mean
     first = df.groupby(groupby_col).agg(f1)
-    if train:
-        second = df.groupby(groupby_col).agg(f2).drop('TripType')
-    else:
-        second = df.groupby(groupby_col).agg(f2)
+    second = df.groupby(groupby_col).agg(f2)
     return pd.concat([first, second], axis=1)
 
 
