@@ -27,7 +27,10 @@ def transform_group(df, groupby_col, train=False):
     f2 = generate_convert_dict(col_list, np.count_nonzero, train)
     if train: f1['TripType'] = np.mean
     first = df.groupby(groupby_col).agg(f1)
-    second = df.groupby(groupby_col).agg(f2)
+    if train:
+        second = df.groupby(groupby_col).agg(f2).drop('TripType')
+    else:
+        second = df.groupby(groupby_col).agg(f2)
     return pd.concat([first, second], axis=1)
 
 
