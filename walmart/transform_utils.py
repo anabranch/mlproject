@@ -18,16 +18,16 @@ def transform_column(df, colname, keep_columns):
 
 def generate_convert_dict(col_list, func, train=False):
     convert_dict = {x: func for x in col_list}
-    if train: convert_dict['TripType'] = np.mean
     return convert_dict
 
 
 def transform_group(df, groupby_col, train=False):
     col_list = df.columns.tolist()
-    first = df.groupby(groupby_col).agg(generate_convert_dict(col_list, np.sum,
-                                                              train))
-    second = df.groupby(groupby_col).agg(
-        generate_convert_dict(col_list, np.count_nonzero, train))
+    f1 = generate_convert_dict(col_list, np.sum, train)
+    f2 = generate_convert_dict(col_list, np.count_nonzero, train)
+    if train: f1['TripType'] = np.mean
+    first = df.groupby(groupby_col).agg(f1)
+    second = df.groupby(groupby_col).agg(f2)
     return pd.concat([first, second], axis=1)
 
 
