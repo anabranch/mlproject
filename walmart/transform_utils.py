@@ -16,20 +16,17 @@ def transform_column(df, colname, keep_columns):
     return pd.concat([df[keep_columns], dummied], axis=1)
 
 
-def generate_convert_dict(col_list, func, train=False):
-    convert_dict = {x: func for x in col_list}
+def generate_convert_dict(col_list, funcs, train=False):
+    convert_dict = {x: funcs for x in col_list}
     return convert_dict
 
 
 def transform_group(df, groupby_col, train=False):
     col_list = df.columns.tolist()
-    col_list.remove("TripType")
-    f1 = generate_convert_dict(col_list, np.sum, train)
-    f2 = generate_convert_dict(col_list, np.count_nonzero, train)
+    if "TripType" in col_list: col_list.remove("TripType")
+    f1 = generate_convert_dict(col_list, [np.sum, np.count_nonzero], train)
     if train: f1['TripType'] = np.mean
-    first = df.groupby(groupby_col).agg(f1)
-    second = df.groupby(groupby_col).agg(f2)
-    return pd.concat([first, second], axis=1)
+    return df.groupby(groupby_col).agg(f1)
 
 
 def convert_predictions(predictions, **kwargs):
