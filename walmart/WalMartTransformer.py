@@ -13,6 +13,7 @@ class WalmartImputer(TransformerMixin):
         """
 
     def fit(self, X, y=None):
+        """X: a pandas DataFrame"""
         self.fill = pd.Series([X[c].value_counts().index[0]
             if X[c].dtype == np.dtype('O') else X[c].median() for c in X],
             index=X.columns)
@@ -26,10 +27,19 @@ class WalmartOneHotEncoder(TransformerMixin):
         """One hot encoder for one column."""
 
     def fit(self, X, y=None, column_name = 'DepartmentDescription'):
-        self.fill = pd.Series([X[c].value_counts().index[0]
-            if X[c].dtype == np.dtype('O') else X[c].median() for c in X],
-            index=X.columns)
+        """X: a pandas DataFrame"""
         return self
 
     def transform(self, X, y=None):
-        return X.fillna(self.fill)
+        return X
+
+class WalmartGroupbyTransformer(TransformerMixin):
+    def __init__(self):
+        """One hot encoder for one column."""
+
+    def fit(self, X, y=None, column_name = 'DepartmentDescription'):
+        """X: a pandas DataFrame"""
+        return self
+
+    def transform(self, X, y=None):
+        return X
