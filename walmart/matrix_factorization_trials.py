@@ -17,6 +17,14 @@ def load_xy():
     return X, y
 
 
+def iterate_decomps():
+    decompositions = [decomposition.PCA(), decomposition.NMF()]
+    estimators = []
+    for dc in decompositions:
+        est = run_decomposition_pipeline(dc)
+        estimators.append(est)
+
+
 def run_decomposition_pipeline(decomp):
     kh = KaggleHelper("matrix_factorization.db")
     X, y = load_xy()
@@ -68,3 +76,7 @@ def run_decomposition_pipeline(decomp):
 
     kh.end_pipeline()
     return estimator
+
+
+if __name__ == '__main__':
+    iterate_decomps()
