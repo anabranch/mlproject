@@ -57,12 +57,14 @@ class KaggleHelper:
         based on that all lead up to a test_set being produced"""
         self.check_conn()
         now = int(datetime.datetime.now().timestamp())
+        print("Starting Pipeline")
         self.current_run = now
 
     def end_pipeline(self):
         """End a pipeline that has been creating in order for us to create a key
         associated with a series of metrics"""
         self.check_conn()
+        print("Shutting Down Pipeline")
         self.current_run = None
 
     def _check_pipeline(self):
@@ -77,6 +79,7 @@ class KaggleHelper:
         as well as the metric and any notes that should be recorded"""
         self.check_conn()
         now = int(datetime.datetime.now().timestamp())
+        print("Recording %s Metric at: %i" % (metric_name, now))
 
         try:
             self.cur.execute(
