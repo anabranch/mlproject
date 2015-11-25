@@ -3,7 +3,8 @@ import pandas as pd
 
 from sklearn.pipeline import Pipeline
 from sklearn.grid_search import GridSearchCV
-from sklearn import linear_model, decomposition
+from sklearn.linear_model import LogisticRegression
+from sklearn import decomposition
 
 import feature_transformers as ft
 from kaggle_helper import KaggleHelper
@@ -16,21 +17,16 @@ def load_xy():
     return X, y
 
 
-def run_pca_pipeline():
+def run_decomposition_pipeline(decomp):
     kh = KaggleHelper("matrix_factorization.db")
     X, y = load_xy()
 
-    # Mutable vals
+    ####### MUTABLE VARIABLES
     dummy_cols = ['Weekday', 'DepartmentDescription']
     keep_cols = ['VisitNumber', 'ScanCount', 'Returns']
     funcs = [np.sum, np.count_nonzero]
-    n_components = [10, 15]
-    Cs = np.linspace(0.5, 10, 5)
-    cv_grid = {'logistic__C': Cs, 'pca__n_components': n_components}
-    num_folds = 6
-
-    logistic = linear_model.LogisticRegression()
-    pca = decomposition.PCA()
+    logistic = LogisticRegression()
+    decomp = decomp
     dfta = ft.DataFrameToArray()
     add_returns = ft.NGAddReturns()
     gdd = ft.GDummyAndKeepTransform(dummy_cols, keep_cols, funcs)
@@ -42,9 +38,19 @@ def run_pca_pipeline():
                                                                 ("gdd", gdd)))
     transform_steps.append((("dfta", dfta)))
     transform_pipe = Pipeline(steps=transform_steps)
+
+    ####### END TRANSFORMATIONS
     X = transform_pipe.transform(X)
 
-    pred_steps = [('pca', pca), ('logistic', logistic)]
+    ###### LATE STAGE VARIABLES
+    feat_length = X.shape[1]
+    n_components = np.linspace(10, feat_length, 5).astype(int)
+    Cs = np.linspace(0.5, 10, 5)
+    cv_grid = {'clf__C': Cs, 'decomp__n_components': n_components}
+    num_folds = 4
+
+    ####### START PREDICTIONS
+    pred_steps = [('decomp', decomp), ('clf', logistic)]
     pred_pipe = Pipeline(steps=pred_steps)
     estimator = GridSearchCV(pred_pipe, cv_grid, cv=num_folds)
 
