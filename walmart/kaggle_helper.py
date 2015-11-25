@@ -86,6 +86,9 @@ class KaggleHelper:
             self.conn.commit()
         except sqlite3.Error as e:
             print(e)
+            print("Values:")
+            print((self.current_run, val_or_test, start_or_end, now, str(clf),
+                   metric_name, value, notes))
 
     def save_test_predictions(self, predictions, clf, output_folder, notes=""):
         """Saves a series of predictions to a file,
