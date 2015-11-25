@@ -24,6 +24,7 @@ class NGMetricCheckPoint(TransformerMixin):
                  metric_name="",
                  value="",
                  notes=""):
+        "Records a start stop metric"
         self.kh = kagglehelper
         self.vot = validation_or_test
         self.soe = start_or_end
@@ -54,7 +55,7 @@ class NGAddReturns(TransformerMixin):
         return df
 
 
-class GDeptDescriptionWithTransform(TransformerMixin):
+class GDummyAndKeepTransform(TransformerMixin):
     def __init__(self, cols_to_dummy, cols_to_keep, transformation_funcs):
         "Transform our DataFrame into an array"
         self.dummy_cols = cols_to_dummy
