@@ -77,7 +77,7 @@ class GDummyAndKeepTransform(TransformerMixin):
     def transform(self, X, y=None):
         df = X.copy()
 
-        dummied = pd.get_dummies(df[self.dummy_cols])
+        dummied = pd.get_dummies(df[self.dummy_cols], dummy_na=True)
 
         col_list = dummied.columns.tolist() + self.keep_cols
         convert_column_functions = {x: self.funcs for x in col_list}
