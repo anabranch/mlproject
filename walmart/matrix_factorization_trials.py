@@ -11,10 +11,6 @@ from kaggle_helper import KaggleHelper
 
 def load_xy():
     raw = pd.read_csv("data/train.csv")
-    print("Unique UPC:", len(raw.Upc.unique()))
-    print("Unique DepartmentDescription:",
-          len(raw.DepartmentDescription.unique()))
-    print("Unique FinelineNumber:", len(raw.FinelineNumber.unique()))
     y = raw[['TripType', 'VisitNumber']].groupby('VisitNumber').mean()
     X = raw.drop('TripType', axis=1)
     return X, y
@@ -29,7 +25,7 @@ def run_pca_pipeline():
     keep_cols = ['VisitNumber', 'ScanCount', 'Returns']
     funcs = [np.sum, np.count_nonzero]
     n_components = [10, 15]
-    Cs = np.logspace(-4, 4, 3)
+    Cs = np.linspace(0.5, 10, 5)
     cv_grid = {'logistic__C': Cs, 'pca__n_components': n_components}
     num_folds = 6
 
@@ -49,10 +45,20 @@ def run_pca_pipeline():
     X = transform_pipe.transform(X)
 
     pred_steps = [('pca', pca), ('logistic', logistic)]
-
     pred_pipe = Pipeline(steps=pred_steps)
-    estimator = GridSearchCV(pred_pipe, cv_grid)
+    estimator = GridSearchCV(pred_pipe, cv_grid, cv=num_folds)
 
+    kh.record_metric("validation", "start", estimator, "training", "", "")
     estimator.fit(X, y['TripType'].values)
+    kh.record_metric("validation", "end", estimator, "training", "", "")
+
+    pipeline_text = "Transformation Pipeline: " + str(transform_pipe)
+    kh.record_metric("validation", "end", estimator, "best_params",
+                     estimator.best_params_, pipeline_text)
+    kh.record_metric("validation", "end", estimator, "best_estimator",
+                     estimator.best_estimator_, pipeline_text)
+    kh.record_metric("validation", "end", estimator, "best_score",
+                     estimator.best_score_, pipeline_text)
+
     kh.end_pipeline()
     return estimator
