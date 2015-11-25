@@ -6,7 +6,7 @@ def wrapStep(KH, step):
     name = step[0]
     start = NGMetricCheckPoint(KH, "validation", "start", name)
     end = NGMetricCheckPoint(KH, "validation", "end", name)
-    return (name + "start", start), step, (name + "end", end)
+    return (name + "_start", start), step, (name + "_end", end)
 
 
 class DataFrameToArray(TransformerMixin):
