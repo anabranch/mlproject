@@ -2,10 +2,11 @@ import pandas as pd
 from sklearn.base import TransformerMixin
 
 
-def generateMetricTransformPair(KH, name):
-    start = NGMetricCheckPoint(KH, "validation", "start", name, "", "")
-    end = NGMetricCheckPoint(KH, "validation", "stop", name, "", "")
-    return start, end
+def wrapStep(KH, step):
+    name = step[0]
+    start = NGMetricCheckPoint(KH, "validation", "start", name)
+    end = NGMetricCheckPoint(KH, "validation", "end", name)
+    return (name + "start", start), step, (name + "end", end)
 
 
 class DataFrameToArray(TransformerMixin):
@@ -39,6 +40,14 @@ class NGMetricCheckPoint(TransformerMixin):
         self.kh.record_metric(self.vot, self.soe, "in pipeline", self.m,
                               self.v, self.n)
         return X
+
+    def get_params(self, deep):
+        return dict(kagglehelper=self.kh,
+                    validation_or_test=self.vot,
+                    start_or_end=self.soe,
+                    metric_name=self.m,
+                    value=self.v,
+                    notes=self.n)
 
 
 class NGAddReturns(TransformerMixin):
