@@ -1,5 +1,6 @@
 */predictions
 *.db
+*.pyc
 */data
 */.ipynb_checkpoints
 */__pycache__
