@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.base import TransformerMixin
+from sklearn.feature_extraction import DictVectorizer
 
 class WalmartImputer(TransformerMixin):
 
@@ -22,24 +23,15 @@ class WalmartImputer(TransformerMixin):
     def transform(self, X, y=None):
         return X.fillna(self.fill)
 
-class WalmartOneHotEncoder(TransformerMixin):
+class GWalmartTransformer(TransformerMixin):
     def __init__(self):
         """One hot encoder for one column."""
 
-    def fit(self, X, y=None, column_name = 'DepartmentDescription'):
+    def fit(self, X, y=None, one_hot_column = 'DepartmentDescription', groupBy_column = 'VisitNumber'):
         """X: a pandas DataFrame"""
+        self.vectorizer = DictVectorizer(sparse = False)
+        self.vectorizer.fit(X[one_hot_column].to_frame().to_dict().values())
         return self
 
     def transform(self, X, y=None):
-        return X
-
-class WalmartGroupbyTransformer(TransformerMixin):
-    def __init__(self):
-        """One hot encoder for one column."""
-
-    def fit(self, X, y=None, column_name = 'DepartmentDescription'):
-        """X: a pandas DataFrame"""
-        return self
-
-    def transform(self, X, y=None):
-        return X
+        return 
