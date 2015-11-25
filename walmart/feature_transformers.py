@@ -4,7 +4,7 @@ from sklearn.base import TransformerMixin
 
 def generateMetricTransformPair(KH, name):
     start = NGMetricCheckPoint(KH, "validation", "start", name, "", "")
-    end = NGMetricCheckPoint(KH, "validation", "start", name, "", "")
+    end = NGMetricCheckPoint(KH, "validation", "stop", name, "", "")
     return start, end
 
 
