@@ -28,7 +28,7 @@ def run_pca_pipeline():
     dummy_cols = ['Weekday', 'DepartmentDescription']
     keep_cols = ['VisitNumber', 'ScanCount', 'Returns']
     funcs = [np.sum, np.count_nonzero]
-    n_components = [10, 20, 40, 80, 160]
+    n_components = [10, 15]
     Cs = np.logspace(-4, 4, 3)
     cv_grid = {'logistic__C': Cs, 'pca__n_components': n_components}
     num_folds = 6
@@ -38,17 +38,21 @@ def run_pca_pipeline():
     dfta = ft.DataFrameToArray()
     add_returns = ft.NGAddReturns()
     gdd = ft.GDummyAndKeepTransform(dummy_cols, keep_cols, funcs)
-    ar1, ar2 = ft.generateMetricTransformPair(kh, "add_returns")
-    gdd1, gdd2 = ft.generateMetricTransformPair(kh, "grouping + dummy")
 
     kh.start_pipeline()
-    steps = [('add_returns_start', ar1), ('add_returns', add_returns),
-             ('add_returns_end', ar2), ('gdd_returns_start', gdd1),
-             ('gdd', gdd), ('gdd_returns_start', gdd2), ('dftoarr', dfta),
-             ('pca', pca), ('logistic', logistic)]
-    pipe = Pipeline(steps=steps)
+    transform_steps = list(
+        ft.wrapStep(kh,
+                    ("add_returns", add_returns)) + ft.wrapStep(kh,
+                                                                ("gdd", gdd)))
+    transform_steps.append((("dfta", dfta)))
+    transform_pipe = Pipeline(steps=transform_steps)
+    X = transform_pipe.transform(X)
 
-    estimator = GridSearchCV(pipe, cv_grid, cv=num_folds)
-    estimator.fit(X, y)
+    pred_steps = [('pca', pca), ('logistic', logistic)]
+
+    pred_pipe = Pipeline(steps=pred_steps)
+    estimator = GridSearchCV(pred_pipe, cv_grid)
+
+    estimator.fit(X, y['TripType'].values)
     kh.end_pipeline()
     return estimator
