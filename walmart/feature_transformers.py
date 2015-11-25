@@ -2,10 +2,11 @@ import pandas as pd
 from sklearn.base import TransformerMixin
 
 
-def generateMetricTransformPair(KH, name):
-    start = NGMetricCheckPoint(KH, "validation", "start", name, "", "")
-    end = NGMetricCheckPoint(KH, "validation", "stop", name, "", "")
-    return start, end
+def wrapStep(KH, step):
+    name = step[0]
+    start = NGMetricCheckPoint(KH, "validation", "start", name)
+    end = NGMetricCheckPoint(KH, "validation", "end", name)
+    return (name + "_start", start), step, (name + "_end", end)
 
 
 class DataFrameToArray(TransformerMixin):
@@ -24,6 +25,7 @@ class NGMetricCheckPoint(TransformerMixin):
                  metric_name="",
                  value="",
                  notes=""):
+        "Records a start stop metric"
         self.kh = kagglehelper
         self.vot = validation_or_test
         self.soe = start_or_end
@@ -38,6 +40,14 @@ class NGMetricCheckPoint(TransformerMixin):
         self.kh.record_metric(self.vot, self.soe, "in pipeline", self.m,
                               self.v, self.n)
         return X
+
+    def get_params(self, deep):
+        return dict(kagglehelper=self.kh,
+                    validation_or_test=self.vot,
+                    start_or_end=self.soe,
+                    metric_name=self.m,
+                    value=self.v,
+                    notes=self.n)
 
 
 class NGAddReturns(TransformerMixin):
@@ -54,7 +64,7 @@ class NGAddReturns(TransformerMixin):
         return df
 
 
-class GDeptDescriptionWithTransform(TransformerMixin):
+class GDummyAndKeepTransform(TransformerMixin):
     def __init__(self, cols_to_dummy, cols_to_keep, transformation_funcs):
         "Transform our DataFrame into an array"
         self.dummy_cols = cols_to_dummy
@@ -67,7 +77,7 @@ class GDeptDescriptionWithTransform(TransformerMixin):
     def transform(self, X, y=None):
         df = X.copy()
 
-        dummied = pd.get_dummies(df[self.dummy_cols])
+        dummied = pd.get_dummies(df[self.dummy_cols], dummy_na=True)
 
         col_list = dummied.columns.tolist() + self.keep_cols
         convert_column_functions = {x: self.funcs for x in col_list}
