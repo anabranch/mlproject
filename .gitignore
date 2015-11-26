@@ -2,5 +2,6 @@
 *.db
 *.pyc
 */data
+*/old_ipynb
 */.ipynb_checkpoints
 */__pycache__
