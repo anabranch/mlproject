@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 
-from WalMartTransformer import WalmartImputer
+from WalMartTransformer import WalmartImputer, GWalmartTransformer
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -25,28 +25,30 @@ train_label = train_label.groupby('VisitNumber').agg(np.mean).as_matrix()
 train_data = raw[raw_test.columns]
 test_data = raw_test
 
-trans = GWalmartTransformer()
+trans = GWalmartTransformer(group_by_col = 'VisitNumber', one_hot_cols = ['DepartmentDescription'], mul_col = None, fillna = True)
 
 #trans.fit(train_data, group_by_col = 'VisitNumber', one_hot_cols = ['DepartmentDescription'], mul_col = 'ScanCount', fillna = True)
-train_matrix = trans.fit_transform(train_data, group_by_col = 'VisitNumber', one_hot_cols = ['DepartmentDescription'], mul_col = 'ScanCount', fillna = True)
-test_matrix = test.transform(test_data)
+train_matrix = trans.fit_transform(train_data)
+test_matrix = trans.transform(test_data)
 
+print(train_matrix.shape)
+print(test_matrix.shape)
 ############################Fit and Predict with Random Forest#################################
 
-XTrain, XVal, yTrain, yVal = train_test_split(train_matrix, train_label, test_size=0.5, random_state=200)
+XTrain, XVal, yTrain, yVal = train_test_split(train_matrix, train_label, test_size=0.5, random_state=42)
 
 search_grid = {
     "n_estimators": [100, 200, 300],
     "max_features": ["auto"],
     "min_samples_split": [10, 20, 5, 2],
     "min_samples_leaf": [1],
-    "max_depth": [15, 30, 45, 60]
+    "max_depth": [15, 30, 45, 60, None]
 }
 
 start = datetime.datetime.now()
 clf = RandomForestClassifier()
 
-model = GridSearchCV(clf, search_grid, n_jobs=3)
+model = GridSearchCV(clf, search_grid)
 model.fit(XTrain, yTrain.ravel())
 score = model.score(XVal, yVal.ravel())
 print(score)

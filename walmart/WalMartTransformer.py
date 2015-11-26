@@ -14,7 +14,6 @@ class WalmartImputer(TransformerMixin):
         """
 
     def fit(self, X, y=None):
-        """X: a pandas DataFrame"""
         self.fill = pd.Series([X[c].value_counts().index[0]
             if X[c].dtype == np.dtype('O') else X[c].median() for c in X],
             index=X.columns)
@@ -24,21 +23,22 @@ class WalmartImputer(TransformerMixin):
         return X.fillna(self.fill)
 
 class GWalmartTransformer(TransformerMixin):
-    def __init__(self):
-        pass
-    def fit(self, X, group_by_col, one_hot_cols, mul_col, fillna):
+    def __init__(self, group_by_col, one_hot_cols, mul_col, fillna):
         self.fillna = fillna
-        if self.fillna:
-            self.imp = WalmartImputer()
-            self.imp.fit(X)
         self.group_by_col = group_by_col
         self.one_hot_cols = one_hot_cols
         self.mul_col = mul_col
+
+    def fit(self, X, y = None):
+        if self.fillna:
+            self.imp = WalmartImputer()
+            self.imp.fit(X)
         if self.one_hot_cols:
             self.vectorizer = DictVectorizer(sparse = False)
             self.vectorizer.fit(X[self.one_hot_cols].T.to_dict().values())
+        return self
 
-    def transform(self, X):
+    def transform(self, X, y = None):
         if self.fillna:
             self.imp.transform(X)
         if self.one_hot_cols:
