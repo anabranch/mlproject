@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 
-from WalMartTransformer import WalmartImputer, GWalmartTransformer
+from WalMartTransformer import GWalmartTransformer
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -26,11 +26,11 @@ train_data = raw[raw_test.columns]
 test_data = raw_test
 
 trans = GWalmartTransformer(group_by_col = 'VisitNumber', one_hot_cols = ['DepartmentDescription'], mul_col = None, fillna = True)
-
+start = datetime.datetime.now()
 #trans.fit(train_data, group_by_col = 'VisitNumber', one_hot_cols = ['DepartmentDescription'], mul_col = 'ScanCount', fillna = True)
 train_matrix = trans.fit_transform(train_data)
 test_matrix = trans.transform(test_data)
-
+print("Total Time doing transformation:", (datetime.datetime.now() - start).total_seconds())
 print(train_matrix.shape)
 print(test_matrix.shape)
 ############################Fit and Predict with Random Forest#################################
@@ -38,11 +38,11 @@ print(test_matrix.shape)
 XTrain, XVal, yTrain, yVal = train_test_split(train_matrix, train_label, test_size=0.5, random_state=42)
 
 search_grid = {
-    "n_estimators": [100, 200, 300],
+    "n_estimators": [100],
     "max_features": ["auto"],
-    "min_samples_split": [10, 20, 5, 2],
+    "min_samples_split": [10],
     "min_samples_leaf": [1],
-    "max_depth": [15, 30, 45, 60, None]
+    "max_depth": [None]
 }
 
 start = datetime.datetime.now()

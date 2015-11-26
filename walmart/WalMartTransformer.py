@@ -31,6 +31,7 @@ class GWalmartTransformer(TransformerMixin):
 
     def fit(self, X, y = None):
         if self.fillna:
+            print("Hmm")
             self.imp = WalmartImputer()
             self.imp.fit(X)
         if self.one_hot_cols:
@@ -40,7 +41,8 @@ class GWalmartTransformer(TransformerMixin):
 
     def transform(self, X, y = None):
         if self.fillna:
-            self.imp.transform(X)
+            print("Hmm")
+            X = self.imp.transform(X)
         if self.one_hot_cols:
             cols_vect = self.vectorizer.transform(X[self.one_hot_cols].T.to_dict().values())
             if self.mul_col:
