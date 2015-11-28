@@ -116,10 +116,10 @@ class GWalmartTransformer(TransformerMixin):
         self.one_hot_cols = one_hot_cols
         self.mul_col = mul_col
 
+        # can you walk me through what's happening exactly here?
     def fit(self, X, y=None):
-        if self.one_hot_cols:
-            self.vectorizer = DictVectorizer(sparse=False)
-            self.vectorizer.fit(X[self.one_hot_cols].T.to_dict().values())
+        self.vectorizer = DictVectorizer(sparse=False)
+        self.vectorizer.fit(X[self.one_hot_cols].T.to_dict().values())
         return self
 
     def transform(self, X, y=None):
