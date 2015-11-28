@@ -7,7 +7,8 @@ import feature_transformers as ft
 
 def load_xy():
     raw = pd.read_csv("data/train.csv")
-    y = raw[['TripType', 'VisitNumber']].groupby('VisitNumber').mean()
+    y = raw[['TripType', 'VisitNumber']] \
+        .groupby('VisitNumber').mean()['TripType'].values
     X = raw.drop('TripType', axis=1)
     X_test = pd.read_csv("data/test.csv")
     return X, y, X_test
@@ -25,7 +26,9 @@ def autosplit(func):
             "y_train": y_train,
             "X_val": X_val,
             "y_val": y_val,
-            "X_test": val['X_test']
+            "X_test": val['X_test'],
+            "trip_types": pd.Series(y).unique(),
+            "X_test_index": val['X_test_index']
         }
 
     return splitter
@@ -52,10 +55,13 @@ def XY1(kh):  # Dumb Version
     kh.start_pipeline()
     kh.record_metric("validation", "start", "NA", "transform_pipeline",
                      str(transform_pipe), "NA")
-    X = transform_pipe.transform(X)
-    X_test = transform_pipe.transform(X_test)
 
-    return {"X": X, "y": y, "X_test": X_test}
+    return {
+        "X": transform_pipe.transform(X),
+        "y": y,
+        "X_test": transform_pipe.transform(X_test),
+        "X_test_index": pd.Series(X_test.index)
+    }
 
 
 @autosplit
@@ -75,7 +81,9 @@ def XY2(kh):  # Andy's Version
     kh.record_metric("validation", "start", "NA", "transform_pipeline",
                      str(transform_pipe), "NA")
 
-    X = transform_pipe.fit_transform(X)
-    X_test = transform_pipe.transform(X_test)
-
-    return {"X": X, "y": y, "X_test": X_test}
+    return {
+        "X": transform_pipe.transform(X),
+        "y": y,
+        "X_test": transform_pipe.transform(X_test),
+        "X_test_index": pd.Series(X_test.index)
+    }
