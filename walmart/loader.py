@@ -21,6 +21,7 @@ def autosplit(func):
         y = val['y']
         X_train, X_val, y_train, y_val = train_test_split(X, y)
 
+        assert X.shape[1] == val['X_test'].shape[1]
         return {
             "X_train": X_train,
             "y_train": y_train,
@@ -35,17 +36,18 @@ def autosplit(func):
 
 
 @autosplit
-def XY1(kh):  # Dumb Version
+def XY1(kh):  # DOESN'T WORK
     X, y, X_test = load_xy()
 
     ####### VARIABLES
     dummy_cols = ['Weekday', 'DepartmentDescription']
-    keep_cols = ['VisitNumber', 'ScanCount', 'Returns']
+    keep_cols = ['ScanCount', 'Returns']
     funcs = [np.sum, np.count_nonzero]
 
     dfta = ft.DataFrameToArray()
     add_returns = ft.NGAddReturns()
-    gdd = ft.GDummyAndKeepTransform(dummy_cols, keep_cols, funcs)
+    gdd = ft.GDummyAndKeepTransform(dummy_cols, keep_cols,
+                                    funcs)  # Doesn't work!
     transform_steps = list(ft.wrapStep(kh, ("add_returns", add_returns)) \
                            + ft.wrapStep(kh, ("gdd", gdd)))
 
@@ -57,7 +59,7 @@ def XY1(kh):  # Dumb Version
                      str(transform_pipe), "NA")
 
     return {
-        "X": transform_pipe.transform(X),
+        "X": transform_pipe.fit_transform(X),
         "y": y,
         "X_test": transform_pipe.transform(X_test),
         "X_test_index": pd.Series(X_test.index)
@@ -73,7 +75,8 @@ def XY2(kh):  # Andy's Version
 
     grouper = ft.GWalmartTransformer(dummy_cols, None)
 
-    transform_steps = list(ft.wrapStep(kh, ('grouper', grouper)))
+    transform_steps = [("imputer", ft.NGNAImputer())] + \
+                      list(ft.wrapStep(kh, ('grouper', grouper)))
     transform_steps.append((("dfta", dfta)))
     transform_pipe = Pipeline(steps=transform_steps)
 
@@ -82,7 +85,7 @@ def XY2(kh):  # Andy's Version
                      str(transform_pipe), "NA")
 
     return {
-        "X": transform_pipe.transform(X),
+        "X": transform_pipe.fit_transform(X),
         "y": y,
         "X_test": transform_pipe.transform(X_test),
         "X_test_index": pd.Series(X_test.index)
