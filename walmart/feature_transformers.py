@@ -66,31 +66,6 @@ class NGAddReturns(TransformerMixin):
         return df
 
 
-class GDummyAndKeepTransform(TransformerMixin):
-    def __init__(self, cols_to_dummy, cols_to_keep, transformation_funcs):
-        "Transform our DataFrame into an array"
-        self.dummy_cols = cols_to_dummy
-        self.keep_cols = cols_to_keep
-        self.funcs = transformation_funcs
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X, y=None):
-        df = X.copy()
-
-        dummied = pd.get_dummies(df[self.dummy_cols], dummy_na=True)
-
-        col_list = dummied.columns.tolist() + self.keep_cols
-        convert_column_functions = {x: self.funcs for x in col_list}
-
-        output = pd.concat([df[self.keep_cols], dummied], axis=1) \
-                 .groupby('VisitNumber') \
-                 .agg(convert_column_functions)
-
-        return output
-
-
 class NGNAImputer(TransformerMixin):
     def __init__(self):
         """Impute missing values.
@@ -110,23 +85,47 @@ class NGNAImputer(TransformerMixin):
         return X.fillna(self.fill)
 
 
-class GWalmartTransformer(TransformerMixin):
+class GDummyAndKeepTransform(TransformerMixin):
+    def __init__(self, cols_to_dummy, cols_to_keep, transformation_funcs):
+        "Transform our DataFrame into an array"
+        self.group_by_col = "VisitNumber"
+        self.dummy_cols = cols_to_dummy
+        self.keep_cols = cols_to_keep
+        self.funcs = transformation_funcs
+
+    def fit(self, X, y=None):
+        self.vectorizer = DictVectorizer(sparse=False)
+        self.vectorizer.fit(X[self.dummy_cols].T.to_dict().values())
+        return self
+
+    def transform(self, X, y=None):
+        dummied = self.vectorizer \
+                        .transform(X[self.dummy_cols].T.to_dict().values())
+
+        nX = X[[self.group_by_col] + self.keep_cols]
+        print(nX)
+        print(pd.concat([nX, pd.DataFrame(dummied)], axis=1))
+        return pd.concat([nX, pd.DataFrame(dummied)], axis=1) \
+                 .groupby(self.group_by_col).agg(self.funcs)
+
+
+class GMultiplierTransform(TransformerMixin):
     def __init__(self, one_hot_cols, mul_col):
         self.group_by_col = "VisitNumber"
         self.one_hot_cols = one_hot_cols
         self.mul_col = mul_col
 
-        # can you walk me through what's happening exactly here?
     def fit(self, X, y=None):
         self.vectorizer = DictVectorizer(sparse=False)
         self.vectorizer.fit(X[self.one_hot_cols].T.to_dict().values())
-        return self
+        return self  # need to understand what's going on here
 
     def transform(self, X, y=None):
         if self.one_hot_cols:
             cols_vect = self.vectorizer.transform(
                 X[self.one_hot_cols].T.to_dict().values())
-            if self.mul_col:
+            if self.mul_col:  # what is going on here?
+                # why is this none always in your code?
                 cols_vect = X[[self.mul_col]].as_matrix() * cols_vect
         return pd.concat([X[self.group_by_col], pd.DataFrame(cols_vect)], axis=1) \
                  .groupby(self.group_by_col).agg(np.sum)
