@@ -48,10 +48,11 @@ def XY1(kh):
     add_returns = ft.NGAddReturns()
     gdd = ft.GDummyAndKeepTransform(dummy_cols, keep_cols,
                                     funcs)  # Doesn't work!
-    transform_steps = list(ft.wrapStep(kh, ("add_returns", add_returns)) \
-                           + ft.wrapStep(kh, ("gdd", gdd)))
 
-    transform_steps.append((("dfta", dfta)))
+    transform_steps = [("imputer", ft.NGNAImputer())] + \
+                      list(ft.wrapStep(kh, ("add_returns", add_returns))) + \
+                      list(ft.wrapStep(kh, ('grouper', gdd))) + \
+                      [("dfta", dfta)]
     transform_pipe = Pipeline(steps=transform_steps)
 
     kh.start_pipeline()
@@ -73,7 +74,7 @@ def XY2(kh):  # Andy's Version
     dummy_cols = ['Weekday', 'DepartmentDescription']
     dfta = ft.DataFrameToArray()
 
-    grouper = ft.GWalmartTransformer(dummy_cols, None)
+    grouper = ft.GMultiplierTransform(dummy_cols, None)
 
     transform_steps = [("imputer", ft.NGNAImputer())] + \
                       list(ft.wrapStep(kh, ('grouper', grouper)))
