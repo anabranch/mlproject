@@ -23,7 +23,7 @@ def iterate_decomps():
 def run_decomposition_pipeline(decomp):
     kh = KaggleHelper("matrix_factorization.db")
     ###### DATA LOADING
-    xy = loader.XY1(kh)
+    xy = loader.XY2(kh)
     X = xy['X_train']
     y = xy['y_train']
     X_val = xy['X_val']
