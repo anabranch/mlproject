@@ -103,8 +103,8 @@ class GDummyAndKeepTransform(TransformerMixin):
                         .transform(X[self.dummy_cols].T.to_dict().values())
 
         nX = X[[self.group_by_col] + self.keep_cols]
-        print(nX)
-        print(pd.concat([nX, pd.DataFrame(dummied)], axis=1))
+        # print(nX)
+        # print(pd.concat([nX, pd.DataFrame(dummied)], axis=1))
         return pd.concat([nX, pd.DataFrame(dummied)], axis=1) \
                  .groupby(self.group_by_col).agg(self.funcs)
 

@@ -36,7 +36,7 @@ def autosplit(func):
 
 
 @autosplit
-def XY1(kh):  # DOESN'T WORK
+def XY1(kh):
     X, y, X_test = load_xy()
 
     ####### VARIABLES
