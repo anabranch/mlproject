@@ -68,11 +68,11 @@ def run_decomposition_pipeline(decomp):
 
     pipeline_text = "Transformation Pipeline: " + str(transform_pipe)
     kh.record_metric("validation", "end", estimator, "best_params",
-                     estimator.best_params_, pipeline_text)
+                     str(estimator.best_params_), pipeline_text)
     kh.record_metric("validation", "end", estimator, "best_estimator",
-                     estimator.best_estimator_, pipeline_text)
+                     str(estimator.best_estimator_), pipeline_text)
     kh.record_metric("validation", "end", estimator, "best_score",
-                     estimator.best_score_, pipeline_text)
+                     str(estimator.best_score_), pipeline_text)
 
     kh.end_pipeline()
     return estimator
