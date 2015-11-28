@@ -3,7 +3,7 @@ import pandas as pd
 
 from sklearn.pipeline import Pipeline
 from sklearn.grid_search import GridSearchCV
-from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
 from sklearn import decomposition
 
 import feature_transformers as ft
@@ -21,12 +21,15 @@ def iterate_decomps():
 
 def run_decomposition_pipeline(decomp):
     kh = KaggleHelper("matrix_factorization.db")
-    clf = LogisticRegression()
+    clf = LinearSVC()
     decomp = decomp
 
     xy = loader.XY1(kh)
-    X = xy['X']
-    y = xy['y']
+    X = xy['X_train']
+    y = xy['y_train']
+    X_val = xy['X_val']
+    y_val = xy['y_val']
+    X_test = xy['X_test']
 
     ###### PIPELINE/CV VARIABLES
     feat_length = X.shape[1]  # use for n_components

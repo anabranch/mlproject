@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.pipeline import Pipeline
-
+from sklearn.cross_validation import train_test_split
 import feature_transformers as ft
 
 
@@ -9,12 +9,31 @@ def load_xy():
     raw = pd.read_csv("data/train.csv")
     y = raw[['TripType', 'VisitNumber']].groupby('VisitNumber').mean()
     X = raw.drop('TripType', axis=1)
-    XTest = pd.read_csv("data/test.csv")
-    return X, y, XTest
+    X_test = pd.read_csv("data/test.csv")
+    return X, y, X_test
 
 
+def autosplit(func):
+    def splitter(*args, **kwargs):
+        val = func(*args, **kwargs)
+        X = val['X']
+        y = val['y']
+        X_train, X_val, y_train, y_val = train_test_split(X, y)
+
+        return {
+            "X_train": X_train,
+            "y_train": y_train,
+            "X_val": X_val,
+            "y_val": y_val,
+            "X_test": val['X_test']
+        }
+
+    return splitter
+
+
+@autosplit
 def XY1(kh):  # Dumb Version
-    X, y, XTest = load_xy()
+    X, y, X_test = load_xy()
 
     ####### VARIABLES
     dummy_cols = ['Weekday', 'DepartmentDescription']
@@ -34,13 +53,14 @@ def XY1(kh):  # Dumb Version
     kh.record_metric("validation", "start", "NA", "transform_pipeline",
                      str(transform_pipe), "NA")
     X = transform_pipe.transform(X)
-    XTest = transform_pipe.transform(XTest)
+    X_test = transform_pipe.transform(X_test)
 
-    return {"X": X, "y": y, "XTest": XTest}
+    return {"X": X, "y": y, "X_test": X_test}
 
 
+@autosplit
 def XY2(kh):  # Andy's Version
-    X, y, XTest = load_xy()
+    X, y, X_test = load_xy()
 
     dummy_cols = ['Weekday', 'DepartmentDescription']
     dfta = ft.DataFrameToArray()
@@ -56,6 +76,6 @@ def XY2(kh):  # Andy's Version
                      str(transform_pipe), "NA")
 
     X = transform_pipe.fit_transform(X)
-    XTest = transform_pipe.transform(XTest)
+    X_test = transform_pipe.transform(X_test)
 
-    return {"X": X, "y": y, "XTest": XTest}
+    return {"X": X, "y": y, "X_test": X_test}
