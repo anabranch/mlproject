@@ -1,5 +1,7 @@
 import pandas as pd
+import numpy as np
 from sklearn.base import TransformerMixin
+from sklearn.feature_extraction import DictVectorizer
 
 
 def wrapStep(KH, step):
@@ -109,31 +111,22 @@ class NGNAImputer(TransformerMixin):
 
 
 class GWalmartTransformer(TransformerMixin):
-    def __init__(self, group_by_col, one_hot_cols, mul_col, fillna):
-        self.fillna = fillna
-        self.group_by_col = group_by_col
+    def __init__(self, one_hot_cols, mul_col):
+        self.group_by_col = "VisitNumber"
         self.one_hot_cols = one_hot_cols
         self.mul_col = mul_col
 
     def fit(self, X, y=None):
-        if self.fillna:
-            print("Hmm")
-            self.imp = WalmartImputer()
-            self.imp.fit(X)
         if self.one_hot_cols:
             self.vectorizer = DictVectorizer(sparse=False)
             self.vectorizer.fit(X[self.one_hot_cols].T.to_dict().values())
         return self
 
     def transform(self, X, y=None):
-        if self.fillna:
-            print("Hmm")
-            X = self.imp.transform(X)
         if self.one_hot_cols:
             cols_vect = self.vectorizer.transform(
                 X[self.one_hot_cols].T.to_dict().values())
             if self.mul_col:
                 cols_vect = X[[self.mul_col]].as_matrix() * cols_vect
-        return pd.concat([X[self.group_by_col], pd.DataFrame(cols_vect)],
-                         axis=1).groupby(self.group_by_col).agg(
-                             np.sum).as_matrix()
+        return pd.concat([X[self.group_by_col], pd.DataFrame(cols_vect)], axis=1) \
+                 .groupby(self.group_by_col).agg(np.sum)
