@@ -11,7 +11,12 @@ def load_xy():
         .groupby('VisitNumber').mean()['TripType'].values
     X = raw.drop('TripType', axis=1)
     X_test = pd.read_csv("data/test.csv")
-    return X, y, X_test
+
+    X_test['Count'] = 1
+    output_index = pd.Series(X_test[['VisitNumber', 'Count']] \
+                             .groupby('VisitNumber').mean().index.tolist())
+
+    return X, y, X_test.drop("Count", axis=1), output_index
 
 
 def autosplit(func):
@@ -28,7 +33,6 @@ def autosplit(func):
             "X_val": X_val,
             "y_val": y_val,
             "X_test": val['X_test'],
-            "trip_types": pd.Series(y).unique(),
             "X_test_index": val['X_test_index']
         }
 
@@ -37,7 +41,7 @@ def autosplit(func):
 
 @autosplit
 def XY1(kh):
-    X, y, X_test = load_xy()
+    X, y, X_test, X_test_index = load_xy()
 
     ####### VARIABLES
     dummy_cols = ['Weekday', 'DepartmentDescription']
@@ -63,13 +67,13 @@ def XY1(kh):
         "X": transform_pipe.fit_transform(X),
         "y": y,
         "X_test": transform_pipe.transform(X_test),
-        "X_test_index": pd.Series(X_test.index)
+        "X_test_index": X_test_index
     }
 
 
 @autosplit
 def XY2(kh):  # Andy's Version
-    X, y, X_test = load_xy()
+    X, y, X_test, X_test_index = load_xy()
 
     dummy_cols = ['Weekday', 'DepartmentDescription']
     dfta = ft.DataFrameToArray()
@@ -89,5 +93,5 @@ def XY2(kh):  # Andy's Version
         "X": transform_pipe.fit_transform(X),
         "y": y,
         "X_test": transform_pipe.transform(X_test),
-        "X_test_index": pd.Series(X_test.index)
+        "X_test_index": X_test_index
     }
