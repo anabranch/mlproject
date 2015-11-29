@@ -10,6 +10,7 @@ from sklearn import decomposition
 from kaggle_helper import KaggleHelper
 import feature_transformers as ft
 import loader
+import utils
 
 
 def iterate_decomps():
@@ -65,8 +66,11 @@ def run_decomposition_pipeline(decomp):
                      validation_score, "")
 
     preds = estimator.predict(X_test)
-    predictions = pd.DataFrame({"index": output_index, "Category": preds})
-    kh.save_test_predictions(predictions, estimator, "predictions")
+    predictions = pd.DataFrame(
+        {"VisitNumber": output_index,
+         "TripType": preds})
+    kh.save_test_predictions(utils.convert_predictions(predictions), estimator,
+                             "predictions")
     kh.end_pipeline()
 
     return estimator
