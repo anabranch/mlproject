@@ -24,7 +24,7 @@ def autosplit(func):
         val = func(*args, **kwargs)
         X = val['X']
         y = val['y']
-        X_train, X_val, y_train, y_val = train_test_split(X, y)
+        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
 
         assert X.shape[1] == val['X_test'].shape[1]
         return {
