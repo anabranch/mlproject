@@ -80,7 +80,9 @@ class KaggleHelper:
         self.check_conn()
         now = int(datetime.datetime.now().timestamp())
         print("Recording %s Metric at: %i" % (metric_name, now))
-
+        print("Values:")
+        print((self.current_run, val_or_test, start_or_end, now, str(clf),
+               metric_name, value, notes))
         try:
             self.cur.execute(
                 """INSERT INTO metrics VALUES (?,?,?,?,?,?,?,?)""",
@@ -88,10 +90,9 @@ class KaggleHelper:
                  metric_name, value, notes))
             self.conn.commit()
         except sqlite3.Error as e:
+            print("###########ERROR:##############")
             print(e)
-            print("Values:")
-            print((self.current_run, val_or_test, start_or_end, now, str(clf),
-                   metric_name, value, notes))
+            print("###########ERROR:##############")
 
     def save_test_predictions(self, predictions, clf, output_folder, notes=""):
         """Saves a series of predictions to a file,
