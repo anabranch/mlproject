@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 
 from WalMartTransformer import GWalmartTransformer
-from sklearn.feature_extraction import DictVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.grid_search import GridSearchCV

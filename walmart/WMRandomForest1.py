@@ -33,4 +33,7 @@ test_matrix = trans.transform(test_data)
 
 print(train_matrix)
 print(test_matrix)
+
+print(train_matrix.shape)
+print(test_matrix.shape)
 ############################Fit and Predict with Random Forest#################################
