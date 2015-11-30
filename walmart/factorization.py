@@ -14,7 +14,7 @@ import utils
 
 
 def iterate_decomps():
-    decompositions = [decomposition.PCA()]
+    decompositions = [decomposition.PCA(), decomposition.NMF()]
     estimators = []
     for dc in decompositions:
         est = run_decomposition_pipeline(dc)
@@ -24,31 +24,32 @@ def iterate_decomps():
 def run_decomposition_pipeline(decomp):
     kh = KaggleHelper("matrix_factorization.db")
     ###### DATA LOADING
-    xy = loader.XY2(kh)
+    xy = loader.XY2(kh)  # CAN CHANGE
+
     X = xy['X_train']
     y = xy['y_train']
     X_val = xy['X_val']
     y_val = xy['y_val']
     X_test = xy['X_test']
     output_index = xy['X_test_index']
-
     print("LOADED DATA")
 
     ###### PIPELINE/CV VARIABLES
-    #    clf = LinearSVC()
-    clf = LogisticRegression()
+    ###### DO NOT CHANGE BEFORE
+    clf = LinearSVC()
     decomp = decomp
     fl = X.shape[1]  # use for n_components
-    num_d = 1
     cv_grid = {
-        #        'clf__C': np.linspace(0.5, 10, num_d),
-        'decomp__n_components': np.linspace(10, fl, num_d).astype(int)
+        'clf__C': np.linspace(0, 10, 8),
+        'decomp__n_components': np.linspace(int(fl / 2), fl, 3).astype(int)
     }
-    num_folds = 4
+    num_folds = 3
 
     ####### START PREDICTIONS
     print("TRAINING ESTIMATOR")
     pred_pipe = Pipeline(steps=[('decomp', decomp), ('clf', clf)])
+
+    ###### DO NOT CHANGE AFTER
     estimator = GridSearchCV(pred_pipe, cv_grid, cv=num_folds)
 
     # DO NOT NEED TO CHANGE BEYOND THIS LINE
