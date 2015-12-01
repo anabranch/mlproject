@@ -75,6 +75,7 @@ def XY1(kh):
 def XY2(kh):  # Andy's Version
     X, y, X_test, X_test_index = load_xy()
 
+    #### DON'T CHANGE BEFORE
     dummy_cols = ['Weekday', 'DepartmentDescription']
     dfta = ft.DataFrameToArray()
 
@@ -82,6 +83,8 @@ def XY2(kh):  # Andy's Version
 
     transform_steps = [("imputer", ft.NGNAImputer())] + \
                       list(ft.wrapStep(kh, ('grouper', grouper)))
+
+    ### DON'T CHANGE AFTER
     transform_steps.append((("dfta", dfta)))
     transform_pipe = Pipeline(steps=transform_steps)
 
