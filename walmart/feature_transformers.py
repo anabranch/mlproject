@@ -41,6 +41,9 @@ class NGMetricCheckPoint(TransformerMixin):
     def transform(self, X, y=None):
         self.kh.record_metric(self.vot, self.soe, "in pipeline", self.m,
                               self.v, self.n)
+        print("X SHAPE:", str(X.shape))
+        self.kh.record_metric(self.vot, self.soe, "in pipeline", "X Shape",
+                              str(X.shape), "")
         return X
 
     def get_params(self, deep):

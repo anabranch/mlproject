@@ -6,11 +6,17 @@ import feature_transformers as ft
 
 
 def load_xy():
-    raw = pd.read_csv("data/train.csv")
+    raw = pd.read_csv("data/train.csv",
+                      dtype={'FinelineNumber': str,
+                             'Weekday': str})
+
     y = raw[['TripType', 'VisitNumber']] \
         .groupby('VisitNumber').mean()['TripType'].values
     X = raw.drop('TripType', axis=1)
-    X_test = pd.read_csv("data/test.csv")
+
+    X_test = pd.read_csv("data/test.csv",
+                         dtype={'FinelineNumber': str,
+                                'Weekday': str})
 
     X_test['Count'] = 1
     output_index = pd.Series(X_test[['VisitNumber', 'Count']] \
