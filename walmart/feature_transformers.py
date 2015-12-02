@@ -108,7 +108,6 @@ class GDummyAndKeepTransform(TransformerMixin):
         return pd.concat([nX, pd.DataFrame(dummied)], axis=1) \
                  .groupby(self.group_by_col).agg(self.funcs)
 
-
 class GMultiplierTransform(TransformerMixin):
     def __init__(self, one_hot_cols, mul_col):
         self.group_by_col = "VisitNumber"
@@ -144,20 +143,5 @@ class GDummyAndMultiplierTransform(TransformerMixin):
     def transform(self, X, y=None):
         cols_vect = self.vectorizer.transform(X[self.dummy_cols].T.to_dict().values())
         cols_vect = X[[self.mul_col]].as_matrix() * cols_vect
-        return pd.concat([X[self.group_by_col], pd.DataFrame(cols_vect)], axis=1) \
-                 .groupby(self.group_by_col).agg(np.sum)
-
-class GDummyTransform(TransformerMixin):
-    def __init__(self, cols_to_dummy):
-        self.group_by_col = "VisitNumber"
-        self.dummy_cols = cols_to_dummy
-
-    def fit(self, X, y=None):
-        self.vectorizer = DictVectorizer(sparse=False)
-        self.vectorizer.fit(X[self.dummy_cols].T.to_dict().values())
-        return self
-
-    def transform(self, X, y=None):
-        cols_vect = self.vectorizer.transform(X[self.dummy_cols].T.to_dict().values())
         return pd.concat([X[self.group_by_col], pd.DataFrame(cols_vect)], axis=1) \
                  .groupby(self.group_by_col).agg(np.sum)
