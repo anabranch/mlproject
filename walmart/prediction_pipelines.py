@@ -5,6 +5,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.grid_search import GridSearchCV
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn import decomposition
 
 from kaggle_helper import KaggleHelper
@@ -128,6 +130,112 @@ def run_logistic_pipeline():
 
     return estimator
 
+def run_random_forest_pipeline():
+    ###### DATA LOADING
+    xy = loader.XY3(KH)  # CAN CHANGE
+
+    X = xy['X_train']
+    y = xy['y_train']
+    X_val = xy['X_val']
+    y_val = xy['y_val']
+    X_test = xy['X_test']
+    output_index = xy['X_test_index']
+    print("LOADED DATA")
+
+    ###### PIPELINE/CV VARIABLES
+    ###### DO NOT CHANGE BEFORE
+    clf = RandomForestClassifier()
+    fl = X.shape[1]  # use for n_components
+    cv_grid = {"n_estimators": [100],
+        "max_features": ["auto"],
+        "min_samples_split": [10],
+        "min_samples_leaf": [1],
+        "max_depth": [None]}
+    num_folds = 3
+
+    ####### START PREDICTIONS
+    print("TRAINING ESTIMATOR")
+    pred_pipe = Pipeline(steps=[('clf', clf)])
+
+    ###### DO NOT CHANGE AFTER
+    estimator = GridSearchCV(pred_pipe, cv_grid, cv=num_folds)
+
+    # DO NOT NEED TO CHANGE BEYOND THIS LINE
+    KH.record_metric("validation", "start", estimator, "training", "", "")
+    estimator.fit(X, y)
+    KH.record_metric("validation", "end", estimator, "training", "", "")
+    KH.record_metric("validation", "end", estimator, "best_params",
+                     str(estimator.best_params_), "NA")
+    KH.record_metric("validation", "end", estimator, "best_estimator",
+                     str(estimator.best_estimator_), "NA")
+    KH.record_metric("validation", "end", estimator, "best_score",
+                     str(estimator.best_score_), "NA")
+    validation_score = str(estimator.score(X_val, y_val))
+    KH.record_metric("validation", "end", estimator, "validation score",
+                     validation_score, "")
+
+    preds = estimator.predict(X_test)
+    predictions = pd.DataFrame(
+        {"VisitNumber": output_index,
+         "TripType": preds})
+    KH.save_test_predictions(utils.convert_predictions(predictions), estimator,
+                             "predictions")
+    KH.end_pipeline()
+
+    return estimator
+
+def run_knn_pipeline():
+    ###### DATA LOADING
+    xy = loader.XY3(KH)  # CAN CHANGE
+
+    X = xy['X_train']
+    y = xy['y_train']
+    X_val = xy['X_val']
+    y_val = xy['y_val']
+    X_test = xy['X_test']
+    output_index = xy['X_test_index']
+    print("LOADED DATA")
+
+    ###### PIPELINE/CV VARIABLES
+    ###### DO NOT CHANGE BEFORE
+    clf = KNeighborsClassifier()
+    fl = X.shape[1]  # use for n_components
+    cv_grid = {"metric": ['minkowski', 'matching', 'braycurtis', 'canberra', 'chebyshev', \
+        'cityblock', 'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard', 'kulsinski', \
+        'mahalanobis', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', \
+        'sqeuclidean', 'wminkowski', 'yule'], }
+    num_folds = 3
+
+    ####### START PREDICTIONS
+    print("TRAINING ESTIMATOR")
+    pred_pipe = Pipeline(steps=[('clf', clf)])
+
+    ###### DO NOT CHANGE AFTER
+    estimator = GridSearchCV(pred_pipe, cv_grid, cv=num_folds)
+
+    # DO NOT NEED TO CHANGE BEYOND THIS LINE
+    KH.record_metric("validation", "start", estimator, "training", "", "")
+    estimator.fit(X, y)
+    KH.record_metric("validation", "end", estimator, "training", "", "")
+    KH.record_metric("validation", "end", estimator, "best_params",
+                     str(estimator.best_params_), "NA")
+    KH.record_metric("validation", "end", estimator, "best_estimator",
+                     str(estimator.best_estimator_), "NA")
+    KH.record_metric("validation", "end", estimator, "best_score",
+                     str(estimator.best_score_), "NA")
+    validation_score = str(estimator.score(X_val, y_val))
+    KH.record_metric("validation", "end", estimator, "validation score",
+                     validation_score, "")
+
+    preds = estimator.predict(X_test)
+    predictions = pd.DataFrame(
+        {"VisitNumber": output_index,
+         "TripType": preds})
+    KH.save_test_predictions(utils.convert_predictions(predictions), estimator,
+                             "predictions")
+    KH.end_pipeline()
+
+    return estimator
 
 if __name__ == '__main__':
     iterate_decomps()
