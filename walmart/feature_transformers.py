@@ -155,16 +155,19 @@ class GDummyKeepAndMultiplierTransform(TransformerMixin):
         self.keep_cols = keep_cols
 
     def fit(self, X, y=None):
-        self.vectorizer = DictVectorizer()
+        self.vectorizer = DictVectorizer(sparse=False)
         self.vectorizer.fit(X[self.dummy_cols].T.to_dict().values())
-        self.keep_vectorizer = DictVectorizer()
+        print("1/2 way there!")
+        self.keep_vectorizer = DictVectorizer(sparse=False)
         self.keep_vectorizer.fit(X[self.keep_cols].T.to_dict().values())
         return self
 
     def transform(self, X, y=None):
+        print("transforming")
         cols_vect = self.vectorizer.transform(
             X[self.dummy_cols].T.to_dict().values())
         cols_vect = X[[self.mul_col]].as_matrix() * cols_vect
+
         print("completed dummy col vector")
         keep_vect = self.keep_vectorizer.transform(
             X[self.keep_cols].T.to_dict().values())
@@ -173,8 +176,11 @@ class GDummyKeepAndMultiplierTransform(TransformerMixin):
         X1 = pd.concat([X[self.group_by_col], pd.DataFrame(cols_vect)], axis=1) \
                .groupby(self.group_by_col).agg(np.sum)
         print("done grouping 1")
+
         X2 = pd.concat([X[self.group_by_col], pd.DataFrame(keep_vect)], axis=1) \
                .groupby(self.group_by_col).agg(np.mean)
         print("done grouping 2")
+        print(X2.shape)
+        print(X1.shape)
 
         return pd.concat([X1, X2], axis=1)
