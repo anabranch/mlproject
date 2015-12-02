@@ -47,7 +47,7 @@ def run_decomposition_pipeline(decomp):
     decomp = decomp
     fl = X.shape[1]  # use for n_components
     cv_grid = {
-        'clf__C': np.linspace(0.1, 10, 8),
+        'clf__C': np.linspace(0.5, 10, 6),
         'decomp__n_components': np.linspace(int(fl / 2), fl, 3).astype(int)
     }
     num_folds = 3
@@ -100,7 +100,7 @@ def run_logistic_pipeline():
     ###### DO NOT CHANGE BEFORE
     clf = LogisticRegression()
     fl = X.shape[1]  # use for n_components
-    cv_grid = {'clf__C': np.linspace(0, 10, 8), }
+    cv_grid = {'clf__C': np.linspace(0.5, 10, 6), }
     num_folds = 3
 
     ####### START PREDICTIONS
@@ -151,7 +151,7 @@ def run_svc_pipeline():
     ###### DO NOT CHANGE BEFORE
     clf = LinearSVC()
     fl = X.shape[1]  # use for n_components
-    cv_grid = {'clf__C': np.linspace(0, 10, 8), }
+    cv_grid = {'clf__C': np.linspace(0.5, 10, 6), }
     num_folds = 3
 
     ####### START PREDICTIONS
@@ -203,11 +203,9 @@ def run_gradient_boosting_pipeline():
     clf = GradientBoostingClassifier()
     fl = X.shape[1]  # use for n_components
     cv_grid = {
-        "clf__n_estimators": [100],
-        "clf__max_features": ["auto"],
-        "clf__min_samples_split": [10],
-        "clf__min_samples_leaf": [1],
-        "clf__max_depth": [None]
+        "clf__n_estimators": [100, 200],
+        "clf__min_samples_split": [10, 20, 50],
+        "clf__min_samples_leaf": [5, 15, 35, 60]
     }
     num_folds = 3
 
@@ -260,11 +258,9 @@ def run_random_forest_pipeline():
     clf = RandomForestClassifier()
     fl = X.shape[1]  # use for n_components
     cv_grid = {
-        "clf__n_estimators": [100],
-        "clf__max_features": ["auto"],
-        "clf__min_samples_split": [10],
-        "clf__min_samples_leaf": [1],
-        "clf__max_depth": [None]
+        "clf__n_estimators": [100, 200],
+        "clf__min_samples_split": [10, 20, 50],
+        "clf__min_samples_leaf": [5, 15, 35, 60]
     }
     num_folds = 3
 
@@ -362,6 +358,8 @@ if __name__ == '__main__':
         run_knn_pipeline()
     elif args.pipeline == 'rf':
         run_random_forest_pipeline()
+    elif args.pipeline == 'gb':
+        run_gradient_boosting_pipeline()
     elif args.pipeline == 'logistic':
         run_logistic_pipeline()
     elif args.pipeline == 'svc':
