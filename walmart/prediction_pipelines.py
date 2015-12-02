@@ -130,6 +130,7 @@ def run_logistic_pipeline():
 
     return estimator
 
+
 def run_random_forest_pipeline():
     ###### DATA LOADING
     xy = loader.XY3(KH)  # CAN CHANGE
@@ -146,11 +147,13 @@ def run_random_forest_pipeline():
     ###### DO NOT CHANGE BEFORE
     clf = RandomForestClassifier()
     fl = X.shape[1]  # use for n_components
-    cv_grid = {"n_estimators": [100],
-        "max_features": ["auto"],
-        "min_samples_split": [10],
-        "min_samples_leaf": [1],
-        "max_depth": [None]}
+    cv_grid = {
+        "clf__n_estimators": [100],
+        "clf__max_features": ["auto"],
+        "clf__min_samples_split": [10],
+        "clf__min_samples_leaf": [1],
+        "clf__max_depth": [None]
+    }
     num_folds = 3
 
     ####### START PREDICTIONS
@@ -184,9 +187,10 @@ def run_random_forest_pipeline():
 
     return estimator
 
+
 def run_knn_pipeline():
     ###### DATA LOADING
-    xy = loader.XY3(KH)  # CAN CHANGE
+    xy = loader.XY4(KH)  # CAN CHANGE
 
     X = xy['X_train']
     y = xy['y_train']
@@ -200,10 +204,11 @@ def run_knn_pipeline():
     ###### DO NOT CHANGE BEFORE
     clf = KNeighborsClassifier()
     fl = X.shape[1]  # use for n_components
-    cv_grid = {"metric": ['minkowski', 'matching', 'braycurtis', 'canberra', 'chebyshev', \
-        'cityblock', 'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard', 'kulsinski', \
-        'mahalanobis', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', \
-        'sqeuclidean', 'wminkowski', 'yule'], }
+    # cv_grid = {"metric": ['minkowski', 'matching', 'braycurtis', 'canberra', 'chebyshev', \
+    #     'cityblock', 'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard', 'kulsinski', \
+    #     'mahalanobis', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', \
+    #     'sqeuclidean', 'wminkowski', 'yule'], }
+    cv_grid = {"clf__metric": ['euclidean']}
     num_folds = 3
 
     ####### START PREDICTIONS
@@ -237,5 +242,6 @@ def run_knn_pipeline():
 
     return estimator
 
+
 if __name__ == '__main__':
-    iterate_decomps()
+    run_knn_pipeline()
