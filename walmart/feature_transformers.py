@@ -41,6 +41,9 @@ class NGMetricCheckPoint(TransformerMixin):
     def transform(self, X, y=None):
         self.kh.record_metric(self.vot, self.soe, "in pipeline", self.m,
                               self.v, self.n)
+        print("X SHAPE:", str(X.shape))
+        self.kh.record_metric(self.vot, self.soe, "in pipeline", "X Shape",
+                              str(X.shape), "")
         return X
 
     def get_params(self, deep):
@@ -103,31 +106,27 @@ class GDummyAndKeepTransform(TransformerMixin):
                         .transform(X[self.dummy_cols].T.to_dict().values())
 
         nX = X[[self.group_by_col] + self.keep_cols]
-        # print(nX)
-        # print(pd.concat([nX, pd.DataFrame(dummied)], axis=1))
         return pd.concat([nX, pd.DataFrame(dummied)], axis=1) \
                  .groupby(self.group_by_col).agg(self.funcs)
 
+
 class GMultiplierTransform(TransformerMixin):
-    def __init__(self, one_hot_cols, mul_col):
+    def __init__(self, one_hot_cols):
         self.group_by_col = "VisitNumber"
         self.one_hot_cols = one_hot_cols
-        self.mul_col = mul_col
 
     def fit(self, X, y=None):
         self.vectorizer = DictVectorizer(sparse=False)
         self.vectorizer.fit(X[self.one_hot_cols].T.to_dict().values())
-        return self  # need to understand what's going on here
+        return self
 
     def transform(self, X, y=None):
         if self.one_hot_cols:
             cols_vect = self.vectorizer.transform(
                 X[self.one_hot_cols].T.to_dict().values())
-            if self.mul_col:  # what is going on here?
-                # why is this none always in your code?
-                cols_vect = X[[self.mul_col]].as_matrix() * cols_vect
         return pd.concat([X[self.group_by_col], pd.DataFrame(cols_vect)], axis=1) \
                  .groupby(self.group_by_col).agg(np.sum)
+
 
 class GDummyAndMultiplierTransform(TransformerMixin):
     def __init__(self, cols_to_dummy, mul_col):
@@ -141,7 +140,41 @@ class GDummyAndMultiplierTransform(TransformerMixin):
         return self
 
     def transform(self, X, y=None):
-        cols_vect = self.vectorizer.transform(X[self.dummy_cols].T.to_dict().values())
+        cols_vect = self.vectorizer.transform(
+            X[self.dummy_cols].T.to_dict().values())
         cols_vect = X[[self.mul_col]].as_matrix() * cols_vect
         return pd.concat([X[self.group_by_col], pd.DataFrame(cols_vect)], axis=1) \
                  .groupby(self.group_by_col).agg(np.sum)
+
+
+class GDummyKeepAndMultiplierTransform(TransformerMixin):
+    def __init__(self, cols_to_dummy, mul_col, keep_cols):
+        self.group_by_col = "VisitNumber"
+        self.mul_col = mul_col
+        self.dummy_cols = cols_to_dummy
+        self.keep_cols = keep_cols
+
+    def fit(self, X, y=None):
+        self.vectorizer = DictVectorizer()
+        self.vectorizer.fit(X[self.dummy_cols].T.to_dict().values())
+        self.keep_vectorizer = DictVectorizer()
+        self.keep_vectorizer.fit(X[self.keep_cols].T.to_dict().values())
+        return self
+
+    def transform(self, X, y=None):
+        cols_vect = self.vectorizer.transform(
+            X[self.dummy_cols].T.to_dict().values())
+        cols_vect = X[[self.mul_col]].as_matrix() * cols_vect
+        print("completed dummy col vector")
+        keep_vect = self.keep_vectorizer.transform(
+            X[self.keep_cols].T.to_dict().values())
+        print("completed keep col vector")
+
+        X1 = pd.concat([X[self.group_by_col], pd.DataFrame(cols_vect)], axis=1) \
+               .groupby(self.group_by_col).agg(np.sum)
+        print("done grouping 1")
+        X2 = pd.concat([X[self.group_by_col], pd.DataFrame(keep_vect)], axis=1) \
+               .groupby(self.group_by_col).agg(np.mean)
+        print("done grouping 2")
+
+        return pd.concat([X1, X2], axis=1)

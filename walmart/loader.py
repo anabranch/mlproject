@@ -6,11 +6,17 @@ import feature_transformers as ft
 
 
 def load_xy():
-    raw = pd.read_csv("data/train.csv")
+    raw = pd.read_csv("data/train.csv",
+                      dtype={'FinelineNumber': str,
+                             'Weekday': str})
+
     y = raw[['TripType', 'VisitNumber']] \
         .groupby('VisitNumber').mean()['TripType'].values
     X = raw.drop('TripType', axis=1)
-    X_test = pd.read_csv("data/test.csv")
+
+    X_test = pd.read_csv("data/test.csv",
+                         dtype={'FinelineNumber': str,
+                                'Weekday': str})
 
     X_test['Count'] = 1
     output_index = pd.Series(X_test[['VisitNumber', 'Count']] \
@@ -79,7 +85,7 @@ def XY2(kh):  # Andy's Version
     dummy_cols = ['Weekday', 'DepartmentDescription']
     dfta = ft.DataFrameToArray()
 
-    grouper = ft.GMultiplierTransform(dummy_cols, None)
+    grouper = ft.GMultiplierTransform(dummy_cols)
 
     transform_steps = [("imputer", ft.NGNAImputer())] + \
                       list(ft.wrapStep(kh, ('grouper', grouper)))
@@ -99,12 +105,13 @@ def XY2(kh):  # Andy's Version
         "X_test_index": X_test_index
     }
 
+
 @autosplit
 def XY3(kh):  # Andy's Version
     X, y, X_test, X_test_index = load_xy()
 
     #### DON'T CHANGE BEFORE
-    dummy_cols = ['Weekday', 'DepartmentDescription']
+    dummy_cols = ['DepartmentDescription']
     mul_col = 'ScanCount'
     dfta = ft.DataFrameToArray()
 
@@ -128,14 +135,52 @@ def XY3(kh):  # Andy's Version
         "X_test_index": X_test_index
     }
 
+
 @autosplit
 def XY4(kh):  # Andy's Version
     X, y, X_test, X_test_index = load_xy()
 
     #### DON'T CHANGE BEFORE
-    dummy_cols = ['Weekday', 'DepartmentDescription']
+    dummy_cols = ['DepartmentDescription']
+    keep_cols = ['Weekday']
+    mul_col = 'ScanCount'
     dfta = ft.DataFrameToArray()
-    grouper = ft.GDummyTransform(dummy_cols)
+
+    grouper = ft.GDummyKeepAndMultiplierTransform(dummy_cols, mul_col,
+                                                  keep_cols)
+
+    transform_steps = [("imputer", ft.NGNAImputer())] + \
+                      list(ft.wrapStep(kh, ('grouper', grouper)))
+
+    ### DON'T CHANGE AFTER
+    transform_steps.append((("dfta", dfta)))
+    transform_pipe = Pipeline(steps=transform_steps)
+
+    kh.start_pipeline()
+    kh.record_metric("validation", "start", "NA", "transform_pipeline",
+                     str(transform_pipe), "NA")
+
+    return {
+        "X": transform_pipe.fit_transform(X),
+        "y": y,
+        "X_test": transform_pipe.transform(X_test),
+        "X_test_index": X_test_index
+    }
+
+
+@autosplit
+def XY5(kh):
+    X, y, X_test, X_test_index = load_xy()
+
+    #### DON'T CHANGE BEFORE
+    dummy_cols = ['FinelineNumber', 'DepartmentDescription']
+    keep_cols = ['Weekday']
+    mul_col = 'ScanCount'
+    dfta = ft.DataFrameToArray()
+
+    grouper = ft.GDummyKeepAndMultiplierTransform(dummy_cols, mul_col,
+                                                  keep_cols)
+
     transform_steps = [("imputer", ft.NGNAImputer())] + \
                       list(ft.wrapStep(kh, ('grouper', grouper)))
 
