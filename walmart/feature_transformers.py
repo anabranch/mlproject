@@ -165,12 +165,16 @@ class GDummyKeepAndMultiplierTransform(TransformerMixin):
         cols_vect = self.vectorizer.transform(
             X[self.dummy_cols].T.to_dict().values())
         cols_vect = X[[self.mul_col]].as_matrix() * cols_vect
+        print("completed dummy col vector")
         keep_vect = self.keep_vectorizer.transform(
             X[self.keep_cols].T.to_dict().values())
+        print("completed keep col vector")
 
         X1 = pd.concat([X[self.group_by_col], pd.DataFrame(cols_vect)], axis=1) \
                .groupby(self.group_by_col).agg(np.sum)
+        print("done grouping 1")
         X2 = pd.concat([X[self.group_by_col], pd.DataFrame(keep_vect)], axis=1) \
                .groupby(self.group_by_col).agg(np.mean)
+        print("done grouping 2")
 
         return pd.concat([X1, X2], axis=1)

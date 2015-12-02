@@ -20,7 +20,7 @@ KH = KaggleHelper("matrix_factorization.db")
 
 
 def iterate_decomps():
-    decompositions = [decomposition.PCA(), decomposition.NMF()]
+    decompositions = [decomposition.TruncatedSVD(), decomposition.NMF()]
     estimators = []
     for dc in decompositions:
         est = run_decomposition_pipeline(dc)
@@ -29,7 +29,7 @@ def iterate_decomps():
 
 def run_decomposition_pipeline(decomp):
     ###### DATA LOADING
-    xy = loader.XY2(KH)  # CAN CHANGE
+    xy = loader.XY5(KH)  # CAN CHANGE
 
     X = xy['X_train']
     y = xy['y_train']
@@ -243,7 +243,7 @@ def run_random_forest_pipeline():
 
 def run_knn_pipeline():
     ###### DATA LOADING
-    xy = loader.XY5(KH)  # CAN CHANGE
+    xy = loader.XY4(KH)  # CAN CHANGE
 
     X = xy['X_train']
     y = xy['y_train']
@@ -257,11 +257,7 @@ def run_knn_pipeline():
     ###### DO NOT CHANGE BEFORE
     clf = KNeighborsClassifier()
     fl = X.shape[1]  # use for n_components
-    # cv_grid = {"metric": ['minkowski', 'matching', 'braycurtis', 'canberra', 'chebyshev', \
-    #     'cityblock', 'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard', 'kulsinski', \
-    #     'mahalanobis', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', \
-    #     'sqeuclidean', 'wminkowski', 'yule'], }
-    cv_grid = {"clf__metric": ['euclidean']}
+    cv_grid = {"clf__metric": ['euclidean', 'manhattan']}
     num_folds = 3
 
     ####### START PREDICTIONS
