@@ -20,7 +20,8 @@ KH = KaggleHelper("matrix_factorization.db")
 
 
 def iterate_decomps():
-    decompositions = [decomposition.TruncatedSVD(), decomposition.NMF()]
+    decompositions = [decomposition.TruncatedSVD(), decomposition.SparsePCA(),
+                      decomposition.NMF()]
     estimators = []
     for dc in decompositions:
         est = run_decomposition_pipeline(dc)

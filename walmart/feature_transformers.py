@@ -155,9 +155,9 @@ class GDummyKeepAndMultiplierTransform(TransformerMixin):
         self.keep_cols = keep_cols
 
     def fit(self, X, y=None):
-        self.vectorizer = DictVectorizer(sparse=False)
+        self.vectorizer = DictVectorizer()
         self.vectorizer.fit(X[self.dummy_cols].T.to_dict().values())
-        self.keep_vectorizer = DictVectorizer(sparse=False)
+        self.keep_vectorizer = DictVectorizer()
         self.keep_vectorizer.fit(X[self.keep_cols].T.to_dict().values())
         return self
 
