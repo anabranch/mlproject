@@ -419,5 +419,5 @@ if __name__ == '__main__':
         run_svc_pipeline()
     elif args.pipeline == 'decomps':
         iterate_decomps()
-    elif args.pipeline == "et"
+    elif args.pipeline == "et":
         run_extra_trees_pipeline()
