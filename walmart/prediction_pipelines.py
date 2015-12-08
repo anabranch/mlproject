@@ -258,9 +258,9 @@ def run_extra_trees_pipeline():
     clf = ExtraTreesClassifier()
     fl = X.shape[1]  # use for n_components
     cv_grid = {
-        "clf__n_estimators": [10, 100],
-        "clf__min_samples_split": [1, 5, 10],
-        "clf__min_samples_leaf": [1, 5, 10]
+        "clf__n_estimators": [100],
+        #"clf__min_samples_split": [1, 5, 10],
+        #"clf__min_samples_leaf": [1, 5, 10]
     }
     num_folds = 4
 
