@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.pipeline import Pipeline
 from sklearn.cross_validation import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
 import feature_transformers as ft
 from joblib import Memory
 import pickle
@@ -114,6 +115,7 @@ def load_xy2():
     X_test = filter_2(filter_1(test_X_dicts))
     print("done with X_test")
     return X, y, X_test, output_index
+
 
 
 def autosplit(func):
@@ -413,4 +415,27 @@ def XY9():
         "y": y,
         "X_test": transform_pipe.transform(X_test),
         "X_test_index": X_test_index
+    }
+
+
+
+@autosplit
+def XY10():
+    with open('data/transformed_prep_tf.pkl', 'rb') as f:
+        X, y, X_test, output_index = pickle.load(f)
+
+    print("transforming")
+    X = [' '.join(q) for q in X]
+    X_test = [' '.join(q) for q in X_test]
+    print("tfidf")
+    t = TfidfVectorizer(use_idf=False)
+    X = t.fit_transform(X)
+    print("for test")
+    X_test = t.transform(X_test)
+    print("returning")
+    return {
+        "X":X,
+        "y":y,
+        "X_test":X_test,
+        "X_test_index":output_index
     }
