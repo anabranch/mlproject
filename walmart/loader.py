@@ -12,8 +12,9 @@ memory = Memory(cachedir='cached_funcs')
 
 
 def positive_feature(key):
-    if not key.endswith("D") and not key.endswith("F") and not key.startswith(
-        "U"):
+    if not key.endswith("D") \
+       and not key.endswith("F") \
+       and not key.startswith("U"):
         return True
 
     else:
@@ -57,7 +58,7 @@ def filter_1(X_dicts):
         bad_keys = list(filter(positive_feature, row.keys()))
         for key in bad_keys:
             del row[key]
-            new_X.append(row)
+        new_X.append(row)
     print("done with filter 1")
     return new_X
 
