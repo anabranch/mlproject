@@ -7,7 +7,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.grid_search import GridSearchCV
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, ExtraTreesClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import decomposition
 
@@ -241,6 +241,58 @@ def run_gradient_boosting_pipeline():
     return estimator
 
 
+def run_extra_trees_pipeline():
+    ###### DATA LOADING
+    xy = XYLOADER(KH)  # CAN CHANGE
+
+    X = xy['X_train']
+    y = xy['y_train']
+    X_val = xy['X_val']
+    y_val = xy['y_val']
+    X_test = xy['X_test']
+    output_index = xy['X_test_index']
+    print("LOADED DATA")
+
+    ###### PIPELINE/CV VARIABLES
+    ###### DO NOT CHANGE BEFORE
+    clf = ExtraTreesClassifier()
+    fl = X.shape[1]  # use for n_components
+    cv_grid = {
+        "clf__n_estimators": [10, 100],
+        "clf__min_samples_split": [1, 5, 10],
+        "clf__min_samples_leaf": [1, 5, 10]
+    }
+    num_folds = 4
+
+    ####### START PREDICTIONS
+    print("TRAINING ESTIMATOR")
+    pred_pipe = Pipeline(steps=[('clf', clf)])
+
+    ###### DO NOT CHANGE AFTER
+    estimator = GridSearchCV(pred_pipe, cv_grid, cv=num_folds)
+
+    # DO NOT NEED TO CHANGE BEYOND THIS LINE
+    KH.record_metric("validation", "start", estimator, "training", "", "")
+    estimator.fit(X, y)
+    KH.record_metric("validation", "end", estimator, "training", "", "")
+    KH.record_metric("validation", "end", estimator, "best_params",
+                     str(estimator.best_params_), "NA")
+    KH.record_metric("validation", "end", estimator, "best_estimator",
+                     str(estimator.best_estimator_), "NA")
+    KH.record_metric("validation", "end", estimator, "best_score",
+                     str(estimator.best_score_), "NA")
+
+    preds = estimator.predict(X_test)
+    predictions = pd.DataFrame(
+        {"VisitNumber": output_index,
+         "TripType": preds})
+    KH.save_test_predictions(utils.convert_predictions(predictions), estimator,
+                             "predictions")
+    KH.end_pipeline()
+
+    return estimator
+
+
 def run_random_forest_pipeline():
     ###### DATA LOADING
     xy = XYLOADER(KH)  # CAN CHANGE
@@ -366,3 +418,5 @@ if __name__ == '__main__':
         run_svc_pipeline()
     elif args.pipeline == 'decomps':
         iterate_decomps()
+    elif args.pipeline == "et":
+        run_extra_trees_pipeline()

@@ -1,0 +1,53 @@
+
+Overall guidelines:
+ 
+We strongly recommend the project be in teams of 2 or 3 people  (more than 3 is strictly forbidden).
+In case you want to go solo, you are welcome. But note that your project will be judged at the same level as other groups.
+If you want to team up with someone not enrolled in CS289, that is fine as long as you clearly acknowledge the same.
+For finding project partners, see @281
+ 
+The project theme may be anything related to ML techniques discussed in class, including:
+conducting original practical research by applying machine learning methods to a public or private dataset (see project ideas below).
+critically revisiting a published paper (including reproducing the experiments, generating new graphs and visual representations, and discussing the results)
+performing a literature review in a specific domain (e.g., transfer learning, active learning, meta-learning) and make a critical comparison (eventually with common datasets)
+conducting original theoretical research (e.g., solve one of the COLT open problems http://jmlr.org/proceedings/papers/v35/ http://jmlr.org/proceedings/papers/v40/)
+ 
+The quality needs to be at least as good as a paper for submission to a machine learning workshop (e.g., a NIPS or an ICML workshop). Your work will be reviewed like a paper according to the following criteria:
+Relevance: should be related to ML techniques discussed in class.
+Usefulness: should answer good questions providing insight and/or solving important problems (the questions should be clearly stated in the proposal).
+Novelty/originality: while we do not require novelty/originality, it will definitely be a plus.
+Soundness: choose datasets with enough examples to get statistically significant results, conduct sound numerical experiments (split the data into training/validation/test sets), make comparative result tables using cross-validation, use the test set only for final assessment, include error bars, add graphs and other good means of visualization (e.g. projections into principal component space), provide sound proofs.
+Clarity/presentation: good English, short grammatical sentences, good paper organization, good bibliography, enough graphs and visual support, length should not exceed 8 pages.
+ 
+Deadlines:
+Initial report: November 5
+Final report: December 11
+ 
+Initial report:
+ 
+Write one to two paragraphs describing what you have decided to do. You can have any number of figures and references. Be sure to:
+Include necessary “background” information: What is the application domain and/or field of research? Why is the problem important? What specific questions are you trying to answer?
+Talk about what data sources you are planning to use, including number of samples and number of features (if it's visual data -- include a sample).
+Explain which methods you are planning to use and why.
+We would strongly recommend describing "preliminary work" where you describe what you have already done (e.g., downloaded and played with data, tried kNN, did a mock-up of the interface for potential users, etc.).  Doing a bit of work will really help you clarify your ideas. Also, for inspiration, here are some the final projects from a Neural Networks class in Stanford that just finished: http://cs231n.stanford.edu/reports.html  We expect your stuff to be quite a bit better than Stanford! ;)
+We plan to give you feedback on your project within a week. 
+ 
+The submission must be made on bCourses (a slot will be made on the “assignments” page). Any one person from the group can submit the proposal. Make sure to include the full names, student IDs and email addresses of all the members of the group.
+ 
+Final submission:
+A project report has to be submitted. The report must be in the format of a conference paper (get the style files here). There is no minimum length requirement. Maximum length is 8 pages.  Also see the general guidelines at the top of this page.
+ 
+Depending on the number of projects, we might also run a poster session or presentation session in addition to the written reports. To be decided.
+ 
+The submission must be made on bCourses (a slot will be made on the “assignments” page). Any one person from the group can submit the proposal. Make sure to include the full names, student IDs and email addresses of all the members of the group.
+ 
+Miscellaneous:
+ 
+We would really like to encourage people to try and use real data to solve a problem.  There is tons of data online now. Doing a Kaggle submission is certainly allowed and encouraged as well as submitting to the AutoML challenge.
+ 
+If you have several ideas and can't pick which one to do, please come to the professors' office hours to discuss!
+ 
+Public or private data is fine, so long as you properly cite your sources and (ideally) provide some way for us to look at the data ourselves. This way we can determine its actually there!
+ 
+If it is cool enough, your project could be the beginning of a paper/work that you could pursue as a research project for your masters or PhD. E.g., Latent Dirichlet Processes was a class project for CS281A.
+If you are enrolled in CS189 and want to do a project, you are welcome to do so. However, note that the project will only count for brownie points and will in no way count towards your grade. You can also collaborate with students taking CS289.
