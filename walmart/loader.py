@@ -423,6 +423,7 @@ def XY9():
 def XY10():
     with open('data/transformed_prep_tf.pkl', 'rb') as f:
         X, y, X_test, output_index = pickle.load(f)
+        # this is basically just load_xy2 but cached
 
     print("transforming")
     X = [' '.join(q) for q in X]
@@ -435,7 +436,7 @@ def XY10():
     print("returning")
     return {
         "X":X,
-        "y":y,
+        "y":y.values.flatten(),
         "X_test":X_test,
         "X_test_index":output_index
     }
