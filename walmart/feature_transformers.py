@@ -173,7 +173,8 @@ class GDummyKeepAndMultiplierTransform(TransformerMixin):
         print("transforming")
         cols_vect = self.vectorizer.transform(
             X[self.dummy_cols].T.to_dict().values())
-        cols_vect = X[[self.mul_col]].as_matrix() * cols_vect
+        if self.mul_col:
+            cols_vect = X[[self.mul_col]].as_matrix() * cols_vect
 
         print("completed dummy col vector")
         keep_vect = self.keep_vectorizer.transform(

@@ -3,6 +3,9 @@ import numpy as np
 from sklearn.pipeline import Pipeline
 from sklearn.cross_validation import train_test_split
 import feature_transformers as ft
+from joblib import Memory
+
+memory = Memory(cachedir='cached_funcs')
 
 
 def load_xy():
@@ -30,9 +33,11 @@ def autosplit(func):
         val = func(*args, **kwargs)
         X = val['X']
         y = val['y']
-        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.01)
-
         assert X.shape[1] == val['X_test'].shape[1]
+        assert y.shape == (len(y), )
+
+        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
+
         return {
             "X_train": X_train,
             "y_train": y_train,
@@ -230,6 +235,7 @@ def XY6(kh):
         "X_test_index": X_test_index
     }
 
+
 @autosplit
 def XY7(kh):
     X, y, X_test, X_test_index = load_xy()
@@ -243,7 +249,8 @@ def XY7(kh):
     grouper = ft.GDummyKeepAndMultiplierTransform(dummy_cols, mul_col,
                                                   keep_cols)
 
-    transform_steps = list(ft.wrapStep(kh, ('grouper', grouper)))
+    transform_steps = [("imputer", ft.NGNAImputer())] + \
+                      list(ft.wrapStep(kh, ('grouper', grouper)))
 
     ### DON'T CHANGE AFTER
     transform_steps.append((("dfta", dfta)))
@@ -253,6 +260,67 @@ def XY7(kh):
     kh.record_metric("validation", "start", "NA", "transform_pipeline",
                      str(transform_pipe), "NA")
 
+    return {
+        "X": transform_pipe.fit_transform(X),
+        "y": y,
+        "X_test": transform_pipe.transform(X_test),
+        "X_test_index": X_test_index
+    }
+
+
+@memory.cache
+@autosplit
+def XY8():
+    X, y, X_test, X_test_index = load_xy()
+
+    #### DON'T CHANGE BEFORE
+    dummy_cols = ['DepartmentDescription']
+    keep_cols = ['Weekday', 'Returns']
+    mul_col = 'ScanCount'
+    dfta = ft.DataFrameToArray()
+    add_returns = ft.NGAddReturns()
+
+    grouper = ft.GDummyKeepAndMultiplierTransform(dummy_cols, mul_col,
+                                                  keep_cols)
+
+    transform_steps = [("imputer", ft.NGNAImputer()),
+                       ("add_returns", add_returns), ('grouper', grouper)]
+
+    ### DON'T CHANGE AFTER
+    transform_steps.append((("dfta", dfta)))
+    transform_pipe = Pipeline(steps=transform_steps)
+
+    return {
+        "X": transform_pipe.fit_transform(X),
+        "y": y,
+        "X_test": transform_pipe.transform(X_test),
+        "X_test_index": X_test_index
+    }
+
+
+@memory.cache
+@autosplit
+def XY9():
+    X, y, X_test, X_test_index = load_xy()
+
+    #### DON'T CHANGE BEFORE
+    dummy_cols = ['FinelineNumber']
+    keep_cols = ['Weekday', 'Returns']
+    mul_col = None
+    dfta = ft.DataFrameToArray()
+    add_returns = ft.NGAddReturns()
+
+    print("starting grouping")
+    grouper = ft.GDummyKeepAndMultiplierTransform(dummy_cols, mul_col,
+                                                  keep_cols)
+    print("done grouping")
+    transform_steps = [("imputer", ft.NGNAImputer()),
+                       ("add_returns", add_returns), ('grouper', grouper)]
+
+    ### DON'T CHANGE AFTER
+    transform_steps.append((("dfta", dfta)))
+    transform_pipe = Pipeline(steps=transform_steps)
+    print("done with pipeline, now calculating")
     return {
         "X": transform_pipe.fit_transform(X),
         "y": y,
