@@ -78,14 +78,21 @@ class NGNAImputer(TransformerMixin):
         """
 
     def fit(self, X, y=None):
-        self.fill = pd.Series([X[c].value_counts().index[0]
-                               if X[c].dtype == np.dtype('O') else
-                               X[c].median() for c in X],
-                              index=X.columns)
         return self
 
     def transform(self, X, y=None):
-        return X.fillna(self.fill)
+        for col in X.columns:
+            if col == "DepartmentDescription":
+                X[col] = X[col].fillna("NAD")
+            elif col == "FinelineNumber":
+                X[col] = X[col].fillna("NAF")
+            elif col == "Upc":
+                X[col] = X[col].fillna("NAU")
+            elif col == "Weekday":
+                X[col] = X[col].fillna("NAW")
+            elif col == "ScanCount":
+                X[col] = X[col].fillna(0)
+        return X
 
 
 class GDummyAndKeepTransform(TransformerMixin):
