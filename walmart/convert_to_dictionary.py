@@ -1,6 +1,7 @@
 from collections import Counter
 import pandas as pd
 import numpy as np
+import argparse
 import pickle
 
 
@@ -8,14 +9,17 @@ import pickle
 # y, X = zip(df_to_sentences(df))
 def df_to_sentences(df):
     for q in df.VisitNumber.unique():
+        cur_visit = df[df.VisitNumber == q].astype(str)
         words = []
-        for col in set(df.columns).difference({"VisitNumber"}):
+
+        for col in set(df.columns).difference({"VisitNumber", "ScanCount"}):
             col_str = "_" + col[0]
             # just gets all the columns and converts them into a list
             # then adds that to words
-            words += list(map(lambda x: x + col_str,
-                              df[df.VisitNumber == q][col].as_matrix().flatten(
-                              ).astype(str).tolist()))
+            with_scan = cur_visit.ScanCount + "_" + cur_visit[col] + col_str
+            no_scan = cur_visit[col] + col_str
+            words += with_scan.as_matrix().flatten().tolist() + \
+                     no_scan.as_matrix().flatten().tolist()
         yield (q, dict(Counter(words).most_common()))
 
 
