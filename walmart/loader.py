@@ -422,7 +422,7 @@ def XY9():
 
 @autosplit
 def XY10():
-    with open('data/transformed_prep_tf.pkl', 'rb') as f:
+    with open('data/sentence_data.pkl', 'rb') as f:
         X, y, X_test, output_index = pickle.load(f)
         # this is basically just load_xy2 but cached
 
