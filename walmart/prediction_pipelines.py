@@ -17,7 +17,7 @@ import loader
 import utils
 
 KH = KaggleHelper("matrix_factorization.db")
-XYLOADER = loader.XY4
+XYLOADER = loader.XY6
 
 
 def iterate_decomps():
@@ -269,7 +269,9 @@ def run_extra_trees_pipeline():
     pred_pipe = Pipeline(steps=[('clf', clf)])
 
     ###### DO NOT CHANGE AFTER
-    estimator = GridSearchCV(pred_pipe, cv_grid, cv=num_folds)
+    estimator = GridSearchCV(pred_pipe, cv_grid,
+                             cv=num_folds,
+                             scoring='roc_auc')
 
     # DO NOT NEED TO CHANGE BEYOND THIS LINE
     KH.record_metric("validation", "start", estimator, "training", "", "")
