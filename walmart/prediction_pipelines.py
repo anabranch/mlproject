@@ -308,8 +308,8 @@ def run_random_forest_pipeline():
     clf = RandomForestClassifier()
     fl = X.shape[1]  # use for n_components
     cv_grid = {
-        "clf__n_estimators": [100, 200],
-        "clf__min_samples_split": np.linspace(20, 50, 8)
+        "clf__n_estimators": [100],
+        "clf__min_samples_split": np.linspace(20)
     }
     num_folds = 3
 
