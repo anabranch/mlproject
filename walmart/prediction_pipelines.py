@@ -17,7 +17,7 @@ import loader
 import utils
 
 KH = KaggleHelper("matrix_factorization.db")
-XYLOADER = loader.XY9
+XYLOADER = loader.XY10
 
 
 def iterate_decomps():
