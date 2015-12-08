@@ -17,7 +17,7 @@ import loader
 import utils
 
 KH = KaggleHelper("matrix_factorization.db")
-XYLOADER = loader.XY6
+XYLOADER = loader.XY10
 
 
 def iterate_decomps():
@@ -31,7 +31,7 @@ def iterate_decomps():
 
 def run_decomposition_pipeline(decomp):
     ###### DATA LOADING
-    xy = XYLOADER(KH)  # CAN CHANGE
+    xy = XYLOADER()  # CAN CHANGE
 
     X = xy['X_train']
     y = xy['y_train']
@@ -86,7 +86,7 @@ def run_decomposition_pipeline(decomp):
 
 def run_logistic_pipeline():
     ###### DATA LOADING
-    xy = XYLOADER(KH)  # CAN CHANGE
+    xy = XYLOADER()  # CAN CHANGE
 
     X = xy['X_train']
     y = xy['y_train']
@@ -137,7 +137,7 @@ def run_logistic_pipeline():
 
 def run_svc_pipeline():
     ###### DATA LOADING
-    xy = XYLOADER(KH)  # CAN CHANGE
+    xy = XYLOADER()  # CAN CHANGE
 
     X = xy['X_train']
     y = xy['y_train']
@@ -162,6 +162,7 @@ def run_svc_pipeline():
     estimator = GridSearchCV(pred_pipe, cv_grid, cv=num_folds)
 
     # DO NOT NEED TO CHANGE BEYOND THIS LINE
+    KH.start_pipeline()
     KH.record_metric("validation", "start", estimator, "training", "", "")
     estimator.fit(X, y)
     KH.record_metric("validation", "end", estimator, "training", "", "")
@@ -188,7 +189,7 @@ def run_svc_pipeline():
 
 def run_gradient_boosting_pipeline():
     ###### DATA LOADING
-    xy = XYLOADER(KH)  # CAN CHANGE
+    xy = XYLOADER()  # CAN CHANGE
 
     X = xy['X_train']
     y = xy['y_train']
@@ -202,11 +203,7 @@ def run_gradient_boosting_pipeline():
     ###### DO NOT CHANGE BEFORE
     clf = GradientBoostingClassifier()
     fl = X.shape[1]  # use for n_components
-    cv_grid = {
-        "clf__n_estimators": [100, 200],
-        "clf__min_samples_split": [10, 20, 50],
-        "clf__min_samples_leaf": [5, 15, 35, 60]
-    }
+    cv_grid = {"clf__min_samples_split": [10, 20], }
     num_folds = 3
 
     ####### START PREDICTIONS
@@ -243,7 +240,7 @@ def run_gradient_boosting_pipeline():
 
 def run_extra_trees_pipeline():
     ###### DATA LOADING
-    xy = XYLOADER(KH)  # CAN CHANGE
+    xy = XYLOADER()  # CAN CHANGE
 
     X = xy['X_train']
     y = xy['y_train']
@@ -259,19 +256,16 @@ def run_extra_trees_pipeline():
     fl = X.shape[1]  # use for n_components
     cv_grid = {
         "clf__n_estimators": [100],
-        #"clf__min_samples_split": [1, 5, 10],
-        #"clf__min_samples_leaf": [1, 5, 10]
+        "clf__min_samples_split": np.linspace(10, 50, 8).astype(int)
     }
-    num_folds = 4
+    num_folds = 3
 
     ####### START PREDICTIONS
     print("TRAINING ESTIMATOR")
     pred_pipe = Pipeline(steps=[('clf', clf)])
 
     ###### DO NOT CHANGE AFTER
-    estimator = GridSearchCV(pred_pipe, cv_grid,
-                             cv=num_folds,
-                             scoring='roc_auc')
+    estimator = GridSearchCV(pred_pipe, cv_grid, cv=num_folds)
 
     # DO NOT NEED TO CHANGE BEYOND THIS LINE
     KH.record_metric("validation", "start", estimator, "training", "", "")
@@ -283,7 +277,9 @@ def run_extra_trees_pipeline():
                      str(estimator.best_estimator_), "NA")
     KH.record_metric("validation", "end", estimator, "best_score",
                      str(estimator.best_score_), "NA")
-
+    validation_score = str(estimator.score(X_val, y_val))
+    KH.record_metric("validation", "end", estimator, "validation score",
+                     validation_score, "")
     preds = estimator.predict(X_test)
     predictions = pd.DataFrame(
         {"VisitNumber": output_index,
@@ -297,7 +293,7 @@ def run_extra_trees_pipeline():
 
 def run_random_forest_pipeline():
     ###### DATA LOADING
-    xy = XYLOADER(KH)  # CAN CHANGE
+    xy = XYLOADER()  # CAN CHANGE
 
     X = xy['X_train']
     y = xy['y_train']
@@ -313,8 +309,7 @@ def run_random_forest_pipeline():
     fl = X.shape[1]  # use for n_components
     cv_grid = {
         "clf__n_estimators": [100, 200],
-        "clf__min_samples_split": [10, 20, 50],
-        "clf__min_samples_leaf": [5, 15, 35, 60]
+        "clf__min_samples_split": np.linspace(20, 50, 8)
     }
     num_folds = 3
 

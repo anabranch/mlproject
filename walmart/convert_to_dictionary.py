@@ -30,5 +30,6 @@ if __name__ == '__main__':
     fname = args.filename
 
     df = pd.read_csv("data/" + fname + ".csv")
+    finished = list(df_to_sentences(df))
     with open(fname + ".pkl", "wb") as f:
-        pickle.dump(list(df_to_sentences(df)), f)
+        pickle.dump(finished, f)
