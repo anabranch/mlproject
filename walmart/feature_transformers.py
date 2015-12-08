@@ -4,11 +4,8 @@ from sklearn.base import TransformerMixin
 from sklearn.feature_extraction import DictVectorizer
 
 
-def wrapStep(KH, step):
-    name = step[0]
-    start = NGMetricCheckPoint(KH, "validation", "start", name)
-    end = NGMetricCheckPoint(KH, "validation", "end", name)
-    return (name + "_start", start), step, (name + "_end", end)
+def wrapStep(step):
+    return step
 
 
 class DataFrameToArray(TransformerMixin):

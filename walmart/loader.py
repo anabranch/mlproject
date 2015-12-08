@@ -51,7 +51,7 @@ def autosplit(func):
 
 
 @autosplit
-def XY1(kh):
+def XY1():
     X, y, X_test, X_test_index = load_xy()
 
     ####### VARIABLES
@@ -65,8 +65,8 @@ def XY1(kh):
                                     funcs)  # Doesn't work!
 
     transform_steps = [("imputer", ft.NGNAImputer())] + \
-                      list(ft.wrapStep(kh, ("add_returns", add_returns))) + \
-                      list(ft.wrapStep(kh, ('grouper', gdd))) + \
+                      list(ft.wrapStep(("add_returns", add_returns))) + \
+                      list(ft.wrapStep(('grouper', gdd))) + \
                       [("dfta", dfta)]
     transform_pipe = Pipeline(steps=transform_steps)
 
@@ -83,7 +83,7 @@ def XY1(kh):
 
 
 @autosplit
-def XY2(kh):  # Andy's Version
+def XY2():  # Andy's Version
     X, y, X_test, X_test_index = load_xy()
 
     #### DON'T CHANGE BEFORE
@@ -93,7 +93,7 @@ def XY2(kh):  # Andy's Version
     grouper = ft.GMultiplierTransform(dummy_cols)
 
     transform_steps = [("imputer", ft.NGNAImputer())] + \
-                      list(ft.wrapStep(kh, ('grouper', grouper)))
+                      list(ft.wrapStep(('grouper', grouper)))
 
     ### DON'T CHANGE AFTER
     transform_steps.append((("dfta", dfta)))
@@ -112,7 +112,7 @@ def XY2(kh):  # Andy's Version
 
 
 @autosplit
-def XY3(kh):  # Andy's Version
+def XY3():  # Andy's Version
     X, y, X_test, X_test_index = load_xy()
 
     #### DON'T CHANGE BEFORE
@@ -123,7 +123,7 @@ def XY3(kh):  # Andy's Version
     grouper = ft.GDummyAndMultiplierTransform(dummy_cols, mul_col)
 
     transform_steps = [("imputer", ft.NGNAImputer())] + \
-                      list(ft.wrapStep(kh, ('grouper', grouper)))
+                      list(ft.wrapStep(('grouper', grouper)))
 
     ### DON'T CHANGE AFTER
     transform_steps.append((("dfta", dfta)))
@@ -142,7 +142,7 @@ def XY3(kh):  # Andy's Version
 
 
 @autosplit
-def XY4(kh):  # Andy's Version
+def XY4():  # Andy's Version
     X, y, X_test, X_test_index = load_xy()
 
     #### DON'T CHANGE BEFORE
@@ -155,7 +155,7 @@ def XY4(kh):  # Andy's Version
                                                   keep_cols)
 
     transform_steps = [("imputer", ft.NGNAImputer())] + \
-                      list(ft.wrapStep(kh, ('grouper', grouper)))
+                      list(ft.wrapStep(('grouper', grouper)))
 
     ### DON'T CHANGE AFTER
     transform_steps.append((("dfta", dfta)))
@@ -174,7 +174,7 @@ def XY4(kh):  # Andy's Version
 
 
 @autosplit
-def XY5(kh):
+def XY5():
     X, y, X_test, X_test_index = load_xy()
 
     #### DON'T CHANGE BEFORE
@@ -187,7 +187,7 @@ def XY5(kh):
                                                   keep_cols)
 
     transform_steps = [("imputer", ft.NGNAImputer())] + \
-                      list(ft.wrapStep(kh, ('grouper', grouper)))
+                      list(ft.wrapStep(('grouper', grouper)))
 
     ### DON'T CHANGE AFTER
     transform_steps.append((("dfta", dfta)))
@@ -206,7 +206,7 @@ def XY5(kh):
 
 
 @autosplit
-def XY6(kh):
+def XY6():
     X, y, X_test, X_test_index = load_xy()
 
     #### DON'T CHANGE BEFORE
@@ -218,7 +218,7 @@ def XY6(kh):
     grouper = ft.GDummyKeepAndMultiplierTransform(dummy_cols, mul_col,
                                                   keep_cols)
 
-    transform_steps = list(ft.wrapStep(kh, ('grouper', grouper)))
+    transform_steps = list(ft.wrapStep(('grouper', grouper)))
 
     ### DON'T CHANGE AFTER
     transform_steps.append((("dfta", dfta)))
@@ -237,7 +237,7 @@ def XY6(kh):
 
 
 @autosplit
-def XY7(kh):
+def XY7():
     X, y, X_test, X_test_index = load_xy()
 
     #### DON'T CHANGE BEFORE
@@ -250,7 +250,7 @@ def XY7(kh):
                                                   keep_cols)
 
     transform_steps = [("imputer", ft.NGNAImputer())] + \
-                      list(ft.wrapStep(kh, ('grouper', grouper)))
+                      list(ft.wrapStep(('grouper', grouper)))
 
     ### DON'T CHANGE AFTER
     transform_steps.append((("dfta", dfta)))
