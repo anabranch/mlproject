@@ -430,7 +430,7 @@ def XY10():
     X = [' '.join(q) for q in X]
     X_test = [' '.join(q) for q in X_test]
     print("tfidf")
-    t = TfidfVectorizer(use_idf=False)
+    t = TfidfVectorizer(use_idf=False, max_features=500)
     X = t.fit_transform(X)
     print("for test")
     X_test = t.transform(X_test)

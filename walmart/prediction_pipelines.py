@@ -162,6 +162,7 @@ def run_svc_pipeline():
     estimator = GridSearchCV(pred_pipe, cv_grid, cv=num_folds)
 
     # DO NOT NEED TO CHANGE BEYOND THIS LINE
+    KH.start_pipeline()
     KH.record_metric("validation", "start", estimator, "training", "", "")
     estimator.fit(X, y)
     KH.record_metric("validation", "end", estimator, "training", "", "")
