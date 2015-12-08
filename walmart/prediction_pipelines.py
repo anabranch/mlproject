@@ -240,6 +240,7 @@ def run_gradient_boosting_pipeline():
 
     return estimator
 
+
 def run_extra_trees_pipeline():
     ###### DATA LOADING
     xy = XYLOADER(KH)  # CAN CHANGE
@@ -257,11 +258,11 @@ def run_extra_trees_pipeline():
     clf = ExtraTreesClassifier()
     fl = X.shape[1]  # use for n_components
     cv_grid = {
-        "clf__n_estimators": [100],
-        #"clf__min_samples_split": [10],
-        #"clf__min_samples_leaf": [15, 35, 60]
+        "clf__n_estimators": [10, 100],
+        "clf__min_samples_split": [1, 5, 10],
+        "clf__min_samples_leaf": [1, 5, 10]
     }
-    num_folds = 3
+    num_folds = 4
 
     ####### START PREDICTIONS
     print("TRAINING ESTIMATOR")
@@ -280,9 +281,6 @@ def run_extra_trees_pipeline():
                      str(estimator.best_estimator_), "NA")
     KH.record_metric("validation", "end", estimator, "best_score",
                      str(estimator.best_score_), "NA")
-    validation_score = str(estimator.score(X_val, y_val))
-    KH.record_metric("validation", "end", estimator, "validation score",
-                     validation_score, "")
 
     preds = estimator.predict(X_test)
     predictions = pd.DataFrame(
@@ -293,6 +291,7 @@ def run_extra_trees_pipeline():
     KH.end_pipeline()
 
     return estimator
+
 
 def run_random_forest_pipeline():
     ###### DATA LOADING
