@@ -441,3 +441,26 @@ def XY10():
         "X_test":X_test,
         "X_test_index":output_index
     }
+
+
+@autosplit
+def XY11():
+    with open('data/sentence_data.pkl', 'rb') as f:
+        X, y, X_test, output_index = pickle.load(f)
+        # this is basically just load_xy2 but cached
+
+    print("transforming")
+    X = [' '.join(q) for q in X]
+    X_test = [' '.join(q) for q in X_test]
+    print("tfidf")
+    t = TfidfVectorizer(use_idf=False, max_features=1000, norm=None)
+    X = t.fit_transform(X)
+    print("for test")
+    X_test = t.transform(X_test)
+    print("returning")
+    return {
+        "X":X,
+        "y":y.values.flatten(),
+        "X_test":X_test,
+        "X_test_index":output_index
+    }

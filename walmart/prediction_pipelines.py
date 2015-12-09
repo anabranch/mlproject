@@ -17,7 +17,7 @@ import loader
 import utils
 
 KH = KaggleHelper("matrix_factorization.db")
-XYLOADER = loader.XY10
+XYLOADER = loader.XY11
 
 
 def iterate_decomps():
@@ -100,7 +100,7 @@ def run_logistic_pipeline():
     ###### DO NOT CHANGE BEFORE
     clf = LogisticRegression()
     fl = X.shape[1]  # use for n_components
-    cv_grid = {'clf__C': np.linspace(0.5, 10, 6), }
+    cv_grid = {}
     num_folds = 3
 
     ####### START PREDICTIONS
@@ -111,6 +111,7 @@ def run_logistic_pipeline():
     estimator = GridSearchCV(pred_pipe, cv_grid, cv=num_folds)
 
     # DO NOT NEED TO CHANGE BEYOND THIS LINE
+    KH.start_pipeline()
     KH.record_metric("validation", "start", estimator, "training", "", "")
     estimator.fit(X, y)
     KH.record_metric("validation", "end", estimator, "training", "", "")
@@ -151,7 +152,7 @@ def run_svc_pipeline():
     ###### DO NOT CHANGE BEFORE
     clf = LinearSVC()
     fl = X.shape[1]  # use for n_components
-    cv_grid = {'clf__C': np.linspace(0.5, 10, 6), }
+    cv_grid = {'clf__C': np.linspace(0.5, 10, 3), }
     num_folds = 3
 
     ####### START PREDICTIONS
@@ -308,8 +309,8 @@ def run_random_forest_pipeline():
     clf = RandomForestClassifier()
     fl = X.shape[1]  # use for n_components
     cv_grid = {
-        "clf__n_estimators": [100],
-        "clf__min_samples_split": np.linspace(20)
+        "clf__n_estimators": [10, 100],
+        "clf__min_samples_split": np.linspace(5, 50, 8).astype(int)
     }
     num_folds = 3
 
@@ -321,6 +322,7 @@ def run_random_forest_pipeline():
     estimator = GridSearchCV(pred_pipe, cv_grid, cv=num_folds)
 
     # DO NOT NEED TO CHANGE BEYOND THIS LINE
+    KH.start_pipeline()
     KH.record_metric("validation", "start", estimator, "training", "", "")
     estimator.fit(X, y)
     KH.record_metric("validation", "end", estimator, "training", "", "")
