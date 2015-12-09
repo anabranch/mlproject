@@ -17,8 +17,8 @@ import loader
 import utils
 
 KH = KaggleHelper("matrix_factorization.db")
-XYLOADER = loader.XY13
-preprocess_called = "XY13" # BE SURE TO CHANGE THIS WHEN
+XYLOADER = loader.XY14
+preprocess_called = "XY14" # BE SURE TO CHANGE THIS WHEN
 # YOU CHANGE THE ABOVE LINE!
 
 
@@ -44,12 +44,12 @@ def run_decomposition_pipeline(decomp):
 
     ###### PIPELINE/CV VARIABLES
     ###### DO NOT CHANGE BEFORE
-    clf = LinearSVC()
+    clf = LogisticRegression()
     decomp = decomp
     fl = X.shape[1]  # use for n_components
     cv_grid = {
         'clf__C': np.linspace(0.5, 10, 6),
-        'decomp__n_components': np.linspace(int(fl / 2), fl, 3).astype(int)
+        'decomp__n_components': np.linspace(1, fl, 5).astype(int)
     }
     num_folds = 3
 
@@ -61,6 +61,8 @@ def run_decomposition_pipeline(decomp):
     estimator = GridSearchCV(pred_pipe, cv_grid, cv=num_folds)
 
     # DO NOT NEED TO CHANGE BEYOND THIS LINE
+    KH.start_pipeline()
+    KH.record_metric("validation", "start", "prepross", preprocess_called, "", "")
     KH.record_metric("validation", "start", estimator, "training", "", "")
     estimator.fit(X, y)
     KH.record_metric("validation", "end", estimator, "training", "", "")
@@ -259,8 +261,10 @@ def run_extra_trees_pipeline():
     clf = ExtraTreesClassifier()
     fl = X.shape[1]  # use for n_components
     cv_grid = {
-        "clf__n_estimators": [100],
-        "clf__min_samples_split": np.linspace(10, 50, 8).astype(int)
+        "clf__n_estimators": [50, 100, 200],
+        "clf__criterion":['gini','entropy'],
+        "clf__min_samples_split": np.linspace(1, 50, 3).astype(int),
+        "clf__min_samples_leaf": np.linspace(1, 50, 3).astype(int)
     }
     num_folds = 3
 
@@ -272,6 +276,8 @@ def run_extra_trees_pipeline():
     estimator = GridSearchCV(pred_pipe, cv_grid, cv=num_folds)
 
     # DO NOT NEED TO CHANGE BEYOND THIS LINE
+    KH.start_pipeline()
+    KH.record_metric("validation", "start", "prepross", preprocess_called, "", "")
     KH.record_metric("validation", "start", estimator, "training", "", "")
     estimator.fit(X, y)
     KH.record_metric("validation", "end", estimator, "training", "", "")
@@ -313,7 +319,9 @@ def run_random_forest_pipeline():
     fl = X.shape[1]  # use for n_components
     cv_grid = {
         "clf__n_estimators": [100],
-        "clf__min_samples_split": np.linspace(10, 40, 4).astype(int)
+        "clf__criterion":['gini'],
+        "clf__min_samples_split": np.linspace(1, 20, 3).astype(int),
+        "clf__min_samples_leaf": np.linspace(1, 20, 3).astype(int)
     }
     num_folds = 3
 
