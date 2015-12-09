@@ -17,12 +17,13 @@ import loader
 import utils
 
 KH = KaggleHelper("matrix_factorization.db")
-XYLOADER = loader.XY11
+XYLOADER = loader.XY13
+preprocess_called = "XY13" # BE SURE TO CHANGE THIS WHEN
+# YOU CHANGE THE ABOVE LINE!
 
 
 def iterate_decomps():
-    decompositions = [decomposition.TruncatedSVD(), decomposition.SparsePCA(),
-                      decomposition.NMF()]
+    decompositions = [decomposition.TruncatedSVD()]
     estimators = []
     for dc in decompositions:
         est = run_decomposition_pipeline(dc)
@@ -112,6 +113,7 @@ def run_logistic_pipeline():
 
     # DO NOT NEED TO CHANGE BEYOND THIS LINE
     KH.start_pipeline()
+    KH.record_metric("validation", "start", "prepross", preprocess_called, "", "")
     KH.record_metric("validation", "start", estimator, "training", "", "")
     estimator.fit(X, y)
     KH.record_metric("validation", "end", estimator, "training", "", "")
@@ -164,6 +166,7 @@ def run_svc_pipeline():
 
     # DO NOT NEED TO CHANGE BEYOND THIS LINE
     KH.start_pipeline()
+    KH.record_metric("validation", "start", "prepross", preprocess_called, "", "")
     KH.record_metric("validation", "start", estimator, "training", "", "")
     estimator.fit(X, y)
     KH.record_metric("validation", "end", estimator, "training", "", "")
@@ -309,8 +312,8 @@ def run_random_forest_pipeline():
     clf = RandomForestClassifier()
     fl = X.shape[1]  # use for n_components
     cv_grid = {
-        "clf__n_estimators": [10, 100],
-        "clf__min_samples_split": np.linspace(5, 50, 8).astype(int)
+        "clf__n_estimators": [100],
+        "clf__min_samples_split": np.linspace(10, 40, 4).astype(int)
     }
     num_folds = 3
 
@@ -323,6 +326,7 @@ def run_random_forest_pipeline():
 
     # DO NOT NEED TO CHANGE BEYOND THIS LINE
     KH.start_pipeline()
+    KH.record_metric("validation", "start", "prepross", preprocess_called, "", "")
     KH.record_metric("validation", "start", estimator, "training", "", "")
     estimator.fit(X, y)
     KH.record_metric("validation", "end", estimator, "training", "", "")

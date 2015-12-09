@@ -4,11 +4,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.cross_validation import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 import feature_transformers as ft
-from joblib import Memory
 import pickle
 import re
 
-memory = Memory(cachedir='cached_funcs')
 
 
 def positive_feature(key):
@@ -359,7 +357,6 @@ def XY7():
     }
 
 
-@memory.cache
 @autosplit
 def XY8():
     X, y, X_test, X_test_index = load_xy()
@@ -454,6 +451,51 @@ def XY11():
     X_test = [' '.join(q) for q in X_test]
     print("tfidf")
     t = TfidfVectorizer(use_idf=False, max_features=1000, norm=None)
+    X = t.fit_transform(X)
+    print("for test")
+    X_test = t.transform(X_test)
+    print("returning")
+    return {
+        "X":X,
+        "y":y.values.flatten(),
+        "X_test":X_test,
+        "X_test_index":output_index
+    }
+
+
+@autosplit
+def XY12():
+    with open('data/sentence_data.pkl', 'rb') as f:
+        X, y, X_test, output_index = pickle.load(f)
+        # this is basically just load_xy2 but cached
+
+    print("transforming")
+    X = [' '.join(q) for q in X]
+    X_test = [' '.join(q) for q in X_test]
+    print("tfidf")
+    t = TfidfVectorizer(use_idf=False, max_features=4000, norm=None)
+    X = t.fit_transform(X)
+    print("for test")
+    X_test = t.transform(X_test)
+    print("returning")
+    return {
+        "X":X,
+        "y":y.values.flatten(),
+        "X_test":X_test,
+        "X_test_index":output_index
+    }
+
+@autosplit
+def XY13():
+    with open('data/sentence_data.pkl', 'rb') as f:
+        X, y, X_test, output_index = pickle.load(f)
+        # this is basically just load_xy2 but cached
+
+    print("transforming")
+    X = [' '.join(q) for q in X]
+    X_test = [' '.join(q) for q in X_test]
+    print("tfidf")
+    t = TfidfVectorizer(use_idf=False, norm=None)
     X = t.fit_transform(X)
     print("for test")
     X_test = t.transform(X_test)
