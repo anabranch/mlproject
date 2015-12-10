@@ -2,13 +2,14 @@ import pandas as pd
 import numpy as np
 from sklearn.pipeline import Pipeline
 from sklearn.cross_validation import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 import feature_transformers as ft
-from joblib import Memory
 import pickle
 import re
+import gensim
 
-memory = Memory(cachedir='cached_funcs')
+import scipy as sp
+import scipy.io
 
 
 def positive_feature(key):
@@ -16,7 +17,6 @@ def positive_feature(key):
        and not key.endswith("F") \
        and not key.startswith("U"):
         return True
-
     else:
         return False
 
@@ -122,6 +122,8 @@ def load_xy2():
 def autosplit(func):
     def splitter(*args, **kwargs):
         val = func(*args, **kwargs)
+        if val.get("X_train",None) != None:
+            return val
         X = val['X']
         y = val['y']
         assert X.shape[1] == val['X_test'].shape[1]
@@ -359,7 +361,6 @@ def XY7():
     }
 
 
-@memory.cache
 @autosplit
 def XY8():
     X, y, X_test, X_test_index = load_xy()
@@ -419,7 +420,6 @@ def XY9():
     }
 
 
-
 @autosplit
 def XY10():
     with open('data/sentence_data.pkl', 'rb') as f:
@@ -438,6 +438,221 @@ def XY10():
     return {
         "X":X,
         "y":y.values.flatten(),
+        "X_test":X_test,
+        "X_test_index":output_index
+    }
+
+
+@autosplit
+def XY11():
+    with open('data/sentence_data.pkl', 'rb') as f:
+        X, y, X_test, output_index = pickle.load(f)
+        # this is basically just load_xy2 but cached
+
+    print("transforming")
+    X = [' '.join(q) for q in X]
+    X_test = [' '.join(q) for q in X_test]
+    print("tfidf")
+    t = TfidfVectorizer(use_idf=False, max_features=1000, norm=None)
+    X = t.fit_transform(X)
+    print("for test")
+    X_test = t.transform(X_test)
+    print("returning")
+    return {
+        "X":X,
+        "y":y.values.flatten(),
+        "X_test":X_test,
+        "X_test_index":output_index
+    }
+
+
+@autosplit
+def XY12():
+    with open('data/sentence_data.pkl', 'rb') as f:
+        X, y, X_test, output_index = pickle.load(f)
+        # this is basically just load_xy2 but cached
+
+    print("transforming")
+    X = [' '.join(q) for q in X]
+    X_test = [' '.join(q) for q in X_test]
+    print("tfidf")
+    t = TfidfVectorizer(use_idf=False, max_features=4000, norm=None)
+    X = t.fit_transform(X)
+    print("for test")
+    X_test = t.transform(X_test)
+    print("returning")
+    return {
+        "X":X,
+        "y":y.values.flatten(),
+        "X_test":X_test,
+        "X_test_index":output_index
+    }
+
+@autosplit
+def XY13():
+    with open('data/sentence_data.pkl', 'rb') as f:
+        X, y, X_test, output_index = pickle.load(f)
+        # this is basically just load_xy2 but cached
+
+    print("transforming")
+    X = [' '.join(q) for q in X]
+    X_test = [' '.join(q) for q in X_test]
+    print("tfidf")
+    t = TfidfVectorizer(use_idf=False, norm=None)
+    X = t.fit_transform(X)
+    print("for test")
+    X_test = t.transform(X_test)
+    print("returning")
+    return {
+        "X":X,
+        "y":y.values.flatten(),
+        "X_test":X_test,
+        "X_test_index":output_index
+    }
+
+@autosplit
+def XY14():
+    with open('data/sentence_data.pkl', 'rb') as f:
+        X, y, X_test, output_index = pickle.load(f)
+        # this is basically just load_xy2 but cached
+
+    print("transforming")
+    X = [' '.join(q) for q in X]
+    X_test = [' '.join(q) for q in X_test]
+    print("tfidf")
+    t = TfidfVectorizer(norm=None, max_features=5000)
+    X = t.fit_transform(X)
+    print("for test")
+    X_test = t.transform(X_test)
+    print("returning")
+    return {
+        "X":X,
+        "y":y.values.flatten(),
+        "X_test":X_test,
+        "X_test_index":output_index
+    }
+
+@autosplit
+def XY15():
+    with open('data/sentence_data.pkl', 'rb') as f:
+        X, y, X_test, output_index = pickle.load(f)
+        # this is basically just load_xy2 but cached
+
+    print("transforming")
+    X = [' '.join(q) for q in X]
+    X_test = [' '.join(q) for q in X_test]
+    print("tfidf")
+    t = CountVectorizer(max_features=500)
+    X = t.fit_transform(X)
+    print("for test")
+    X_test = t.transform(X_test)
+    print("returning")
+    return {
+        "X":X,
+        "y":y.values.flatten(),
+        "X_test":X_test,
+        "X_test_index":output_index
+    }
+
+@autosplit
+def XY16():
+    with open('data/sentence_data.pkl', 'rb') as f:
+        X, y, X_test, output_index = pickle.load(f)
+    xy = sp.io.loadmat("data/percentage_and_sc.mat")
+
+    X = xy['train']
+    X_test = xy['test']
+    
+    return {
+        "X":X,
+        "y":y.values.flatten(),
+        "X_test":X_test,
+        "X_test_index":output_index
+    }
+
+
+    
+@autosplit
+def XY17():
+    with open('data/sentence_data.pkl', 'rb') as f:
+        X, y, X_test, output_index = pickle.load(f)
+    print("training w2v")
+    model = gensim.models.Word2Vec(X, size=500, window=10, min_count=5, sg=0, workers=4)
+    vc = model.vocab.keys()
+    sents = []
+    print("starting X")
+    for sent in X:
+        s = [word for word in sent if word in vc]
+        n = [(word, 1) for word in sent]
+        most_sim = model.most_similar(positive=s)
+        sents.append(sent + [word for (word, sim) in most_sim])
+        
+    sents_test = []
+    print("starting X test")
+    for sent in X_test:
+        s = [word for word in sent if word in vc]
+        n = [(word, 1) for word in sent]
+        most_sim = model.most_similar(positive=s)
+        sents_test.append(sent + [word for (word, sim) in most_sim])
+
+    
+    print("starting TFIDF")
+    X_train, X_val, y_train, y_val = train_test_split(sents, y, test_size=0.2)
+    t = TfidfVectorizer(norm=None, max_features=1000, use_idf=False)
+    X_train = t.fit_transform([' '.join(sent) for sent in X_train])
+    print("now just transforming")
+    X_val = t.transform([' '.join(sent) for sent in X_val])
+    X_test = t.transform([' '.join(sent) for sent in sents_test])
+    print("DONE!")
+    
+    return {
+        "X_train":X_train,
+        "y_train":y_train.values.flatten(),
+        "X_val":X_val,
+        "y_val":y_val.values.flatten(),
+        "X_test":X_test,
+        "X_test_index":output_index
+    }
+
+    
+@autosplit
+def XY18():
+    with open('data/sentence_data.pkl', 'rb') as f:
+        X, y, X_test, output_index = pickle.load(f)
+    print("training w2v")
+    model = gensim.models.Word2Vec(X, size=250, window=1, min_count=5, sg=0, workers=4)
+    vc = model.vocab.keys()
+    sents = []
+    print("starting X")
+    for sent in X:
+        s = [word for word in sent if word in vc]
+        n = [(word, 1) for word in sent]
+        most_sim = model.most_similar(positive=s)
+        sents.append(sent + [word for (word, sim) in most_sim])
+        
+    sents_test = []
+    print("starting X test")
+    for sent in X_test:
+        s = [word for word in sent if word in vc]
+        n = [(word, 1) for word in sent]
+        most_sim = model.most_similar(positive=s)
+        sents_test.append(sent + [word for (word, sim) in most_sim])
+
+    
+    print("starting TFIDF")
+    X_train, X_val, y_train, y_val = train_test_split(sents, y, test_size=0.2)
+    t = TfidfVectorizer(norm=None, max_features=700, use_idf=False)
+    X_train = t.fit_transform([' '.join(sent) for sent in X_train])
+    print("now just transforming")
+    X_val = t.transform([' '.join(sent) for sent in X_val])
+    X_test = t.transform([' '.join(sent) for sent in sents_test])
+    print("DONE!")
+    
+    return {
+        "X_train":X_train,
+        "y_train":y_train.values.flatten(),
+        "X_val":X_val,
+        "y_val":y_val.values.flatten(),
         "X_test":X_test,
         "X_test_index":output_index
     }
