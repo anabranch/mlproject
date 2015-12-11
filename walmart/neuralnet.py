@@ -96,9 +96,6 @@ class NeuralNet:
             pickle.dump(weights, f)
 
     def load_layers(self, filename):
-        if input("Enter 5 to load weights") != 5:
-            return
-        
         with open(filename, 'rb') as f:
             weights = pickle.load(f)
         self.hidden_layer.w = weights['w1']
