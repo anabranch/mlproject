@@ -672,7 +672,7 @@ def XY19():
         s = [word for word in sent if word in vc]
         n = [(word, 1) for word in sent]
         most_sim = model.most_similar(positive=s, topn=5)
-        sents.append(sent + [word for (word, sim) in most_sim])
+        sents.append(sent + [word for (word, sim) in most_sim if sim > 0.5])
         
     sents_test = []
     print("starting X test")
@@ -685,7 +685,7 @@ def XY19():
     
     print("starting TFIDF")
     X_train, X_val, y_train, y_val = train_test_split(sents, y, test_size=0.2)
-    t = TfidfVectorizer(norm=None, max_features=700, use_idf=False)
+    t = CountVectorizer(max_features=800)
     X_train = t.fit_transform([' '.join(sent) for sent in X_train])
     print("now just transforming")
     X_val = t.transform([' '.join(sent) for sent in X_val])
