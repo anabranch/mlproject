@@ -656,3 +656,47 @@ def XY18():
         "X_test":X_test,
         "X_test_index":output_index
     }
+
+
+@autosplit
+def XY19():
+    with open('data/sentence_data.pkl', 'rb') as f:
+        X, y, X_test, output_index = pickle.load(f)
+
+    print("training w2v")
+    model = gensim.models.Word2Vec(X, size=250, window=1, min_count=5, sg=0, workers=4)
+    vc = model.vocab.keys()
+    sents = []
+    print("starting X")
+    for sent in X:
+        s = [word for word in sent if word in vc]
+        n = [(word, 1) for word in sent]
+        most_sim = model.most_similar(positive=s, topn=5)
+        sents.append(sent + [word for (word, sim) in most_sim])
+        
+    sents_test = []
+    print("starting X test")
+    for sent in X_test:
+        s = [word for word in sent if word in vc]
+        n = [(word, 1) for word in sent]
+        most_sim = model.most_similar(positive=s)
+        sents_test.append(sent + [word for (word, sim) in most_sim])
+
+    
+    print("starting TFIDF")
+    X_train, X_val, y_train, y_val = train_test_split(sents, y, test_size=0.2)
+    t = TfidfVectorizer(norm=None, max_features=700, use_idf=False)
+    X_train = t.fit_transform([' '.join(sent) for sent in X_train])
+    print("now just transforming")
+    X_val = t.transform([' '.join(sent) for sent in X_val])
+    X_test = t.transform([' '.join(sent) for sent in sents_test])
+    print("DONE!")
+    
+    return {
+        "X_train":X_train,
+        "y_train":y_train.values.flatten(),
+        "X_val":X_val,
+        "y_val":y_val.values.flatten(),
+        "X_test":X_test,
+        "X_test_index":output_index
+    }

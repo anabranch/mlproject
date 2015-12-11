@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import datetime
-
+import pickle
 
 def shape_check(checks):
     for k, v in checks.items():
@@ -89,6 +89,20 @@ class NeuralNet:
     def check_shapes(self):
         self.hidden_layer.check_shapes()
         self.output_layer.check_shapes()
+
+    def cache_layers(self, filename):
+        weights = {"w1":self.hidden_layer.w, "w2":self.output_layer.w}
+        with open(filename, 'wb') as f:
+            pickle.dump(weights, f)
+
+    def load_layers(self, filename):
+        if input("Enter 5 to load weights") != 5:
+            return
+        
+        with open(filename, 'rb') as f:
+            weights = pickle.load(f)
+        self.hidden_layer.w = weights['w1']
+        self.output_layer.w = weights['w2']
 
     def train(self, inputs, labels, **kwargs):
         "Train our Network Using the Inputs and Labels"
