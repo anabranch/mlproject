@@ -2,10 +2,11 @@
 \usepackage{nips15submit_e,times}
 \usepackage{hyperref}
 \usepackage{url}
+\usepackage{graphicx}
 %\documentstyle[nips14submit_09,times,art10]{article} % For LaTeX 2.09
 
 
-\title{Applying Lessons for Natural Language Processing to better Approach Predictions with Large amounts of categorical variables.}
+\title{Neural Embedding for Market Basket Analysis}
 
 \author{ Bill Chambers \thanks{This work is part of Computer Science 289 Course} \\
 School of Information \\
@@ -44,299 +45,91 @@ Berkeley, CA 94720 \\
 
 \section{Introduction}
 
-The data was previously published in \cite{yu_application_2010}
+Our research stemmed from a lecture by Professor Efros in which a student asked,  Professor, if we re given a matrix with lots of categorical variables, what s the best way to approach this style of problem with a neural network?  His response was that our focus should be a Random Forest or a tree-based method. 
 
-\subsection{Retrieval of style files}
+Our group took this as a challenge and decided to pursue this open research question. We recognize that a tree-based method is not only the obvious choice, but would set a strong baseline for us to beat. We decided to pursue this research area by finding a competition featuring this kind of dataset.
 
-The style files for NIPS and other conference information are available on the World Wide Web at
+\subsection{Challenge and Data}
+
+The challenge that we competed in was a challenge put on Walmart on the Kaggle competition website[https://www.kaggle.com/c/walmart-recruiting-trip-type-classification]. Walmart created a dataset of transactions during  visits by individual customers. They then classified these into a variety of different "Trip Types" according to their perception of the motivation of the customer visits in order to improve the segmentation process and improve customer experience.
+
+As mentioned, the raw data is transactional in nature - being a collection of purchased items making it a customer transaction is a collection of purchased items and corresponds to one unique “trip type”. Every purchased item (or every row in the dataset) have 6 features, including 5 categorical features and 1 numerical feature. One example of customer visit (of VisitNumber = 10) in shown in the table below.
+
 \begin{center}
-   \url{http://www.nips.cc/}
+  \begin{tabular}{ c | c | c | c | c | c | c}
+    TripType & VisitNumber & Weekday & Upc & Scans & Department & FinelineNumber \\
+ 8 & 10 & Friday & 6414410235 & 1 & DSD Grocery & 2008 \\
+ 8 & 10 & Friday & 2800053970 & 1 & Candy, Tobacco... & 115 \\
+ 8 & 10 & Friday & 7794800902 & 1 & DSD Grocery & 7950 \\
+  \end{tabular}
 \end{center}
-The file \verb+nips2015.pdf+ contains these 
-instructions and illustrates the
-various formatting requirements your NIPS paper must satisfy. \LaTeX{}
-users can choose between two style files:
-\verb+nips15submit_09.sty+ (to be used with \LaTeX{} version 2.09) and
-\verb+nips15submit_e.sty+ (to be used with \LaTeX{}2e). The file
-\verb+nips2015.tex+ may be used as a ``shell'' for writing your paper. All you
-have to do is replace the author, title, abstract, and text of the paper with
-your own. The file
-\verb+nips2015.rtf+ is provided as a shell for MS Word users.
 
-The formatting instructions contained in these style files are summarized in
-sections \ref{gen_inst}, \ref{headings}, and \ref{others} below.
+TripType is the label or our classification target. The other features provided are: (a) Weekday, the weekday of the trip; (b) ScanCount, the number of items purchased [if positive] or the number of items purchased then returned [if negative]; (c) three levels of granularity for item categorization: DepartmentDescription, FinelineNumber, and Upc. 
 
-%% \subsection{Keywords for paper submission}
-%% Your NIPS paper can be submitted with any of the following keywords (more than one keyword is possible for each paper):
+There exist 68 unique department descriptions. They define the highest level category, the department from which the item was purchased. The middle category is the "Fineline Number" a categorization scheme created by Walmart to provide a middle level of granularity. Fineline number is a four digit number that refers to a group of items within a department which show similar sales patterns. It is determined by sales patterns and that each product is placed accurately within a fineline to maximize sales. (http://blog.8thandwalton.com/2014/06/supplier-glossary-fineline/) There are approximately 5600 unique Fineline Numbers in the training set. 
 
-%% \begin{verbatim}
-%% Bioinformatics
-%% Biological Vision
-%% Brain Imaging and Brain Computer Interfacing
-%% Clustering
-%% Cognitive Science
-%% Control and Reinforcement Learning
-%% Dimensionality Reduction and Manifolds
-%% Feature Selection
-%% Gaussian Processes
-%% Graphical Models
-%% Hardware Technologies
-%% Kernels
-%% Learning Theory
-%% Machine Vision
-%% Margins and Boosting
-%% Neural Networks
-%% Neuroscience
-%% Other Algorithms and Architectures
-%% Other Applications
-%% Semi-supervised Learning
-%% Speech and Signal Processing
-%% Text and Language Applications
+UPC[Universal Product Code] is a barcode symbology for tracking purchased items. There are about 98000 uniques UPCs in the dataset, with each of them corresponds to a specific product. This is even more than our train sample size. It generally uses the common form of UPC-A and is of 12 numerical digits. “Every UPC-A barcode follows the pattern SLLLLLLMRRRRRRE.” S, M,and E stands for the start, middle, and end non-numerical guard bars. 
 
-%% \end{verbatim}
+L (left) and R (right) sections represent the 12 numerical digits of UPC-A.(https://en.wikipedia.org/wiki/Universal\_Product\_Code/)
 
-\section{General formatting instructions}
+However, not all UPC in the dataset is in this form. The length of UPC varies from 3 to 12, indicating that Walmart is using UPC in its own standard or trimming the starting 0 in UPC-A standards.
+
+The core challenge with regard to this dataset is the absence of numerical data. While scan count exhibits so numerical basis, it also represents returns, making it categorical. Creating a binary representation of the data creates extremely sparse matrices making modeling difficult and reinforcing our understanding of the curse of dimensionality.
+
+\section{Previous Research for Handling Categorical Data}
 \label{gen_inst}
+References:
+http://www-users.cs.umn.edu/~sboriah/PDFs/BoriahBCK2008.pdf
+http://www.umass.edu/landeco/teaching/multivariate/readings/McCune.and.Grace.2002.chapter6.pdf
+http://www.cc.gatech.edu/~fli/chebyshev\_cvpr12.pdf
+http://papers.nips.cc/paper/5075-sign-cauchy-projections-and-chi-square-kernel.pdf
+http://www.mtome.com/Publications/CiML/CiML-v3-book.pdf
+http://www.marc-boulle.fr/publications/BoulleMLDM05.pdf (Marc Boullé)
 
-The text must be confined within a rectangle 5.5~inches (33~picas) wide and
-9~inches (54~picas) long. The left margin is 1.5~inch (9~picas).
-Use 10~point type with a vertical spacing of 11~points. Times New Roman is the
-preferred typeface throughout. Paragraphs are separated by 1/2~line space,
-with no indentation.
+https://www3.nd.edu/~dial/papers/ASONAMJ10.pdf
 
-Paper title is 17~point, initial caps/lower case, bold, centered between
-2~horizontal rules. Top rule is 4~points thick and bottom rule is 1~point
-thick. Allow 1/4~inch space above and below title to rules. All pages should
-start at 1~inch (6~picas) from the top of the page.
+http://www.emeraldinsight.com/doi/abs/10.1108/eb026526
 
-%The version of the paper submitted for review should have ``Anonymous Author(s)'' as the author of the paper.
 
-For the final version, authors' names are
-set in boldface, and each name is centered above the corresponding
-address. The lead author's name is to be listed first (left-most), and
-the co-authors' names (if different address) are set to follow. If
-there is only one co-author, list both author and co-author side by side.
 
-Please pay special attention to the instructions in section \ref{others}
-regarding figures, tables, acknowledgments, and references.
-
-\section{Headings: first level}
+\section{Process and Benchmarks}
 \label{headings}
 
-First level headings are lower case (except for first word and proper nouns),
-flush left, bold and in point size 12. One line space before the first level
-heading and 1/2~line space after the first level heading.
+Our process was attack this problem from two directions. Firstly we wanted to get baseline results from a variety of methods including Random Forests, Logistic Regression, K-Nearest Neighbors, Linear Support Vector Classifiers. We experimented with extremely limited transformations from the raw data in order to better understand out of the box results. This included leveraging only the Scan Count and Department Description columns. We tuned each of these methods using a grid search methodology leveraging k-fold cross validation (k=3) and comparing their results on a validation set. Our initial results were relatively consistent across the various methods based on the exact same training and validation sets.
 
-\subsection{Headings: second level}
+\includegraphics[scale=0.4]{comparison_baseline.png} 
 
-Second level headings are lower case (except for first word and proper nouns),
-flush left, bold and in point size 10. One line space before the second level
-heading and 1/2~line space after the second level heading.
+These methods all yielded similar results on the Kaggle public test set. This stimulated interesting discussion within our group as we expected our Random Forest classifier to perform much better than the other methods, while it only yielded nominally improved results. We attribute this again to the sparseness of the data as well as the implementation that we had used.
 
-\subsubsection{Headings: third level}
-
-Third level headings are lower case (except for first word and proper nouns),
-flush left, bold and in point size 10. One line space before the third level
-heading and 1/2~line space after the third level heading.
-
-\section{Citations, figures, tables, references}
-\label{others}
-
-These instructions apply to everyone, regardless of the formatter being used.
-
-\subsection{Citations within the text}
-
-Citations within the text should be numbered consecutively. The corresponding
-number is to appear enclosed in square brackets, such as [1] or [2]-[5]. The
-corresponding references are to be listed in the same order at the end of the
-paper, in the \textbf{References} section. (Note: the standard
-\textsc{Bib\TeX} style \texttt{unsrt} produces this.) As to the format of the
-references themselves, any style is acceptable as long as it is used
-consistently.
-
-As submission is double blind, refer to your own published work in the 
-third person. That is, use ``In the previous work of Jones et al.\ [4]'',
-not ``In our previous work [4]''. If you cite your other papers that
-are not widely available (e.g.\ a journal paper under review), use
-anonymous author names in the citation, e.g.\ an author of the
-form ``A.\ Anonymous''. 
+It was at this point that we decided to focus completely on non-tree based methods and start working our original research objective, how to leverage feature transformations in order to compete with random forests.
 
 
-\subsection{Footnotes}
+\section{A Novel Approach: Neural Embeddings for Market Basket Analysis}
 
-Indicate footnotes with a number\footnote{Sample of the first footnote} in the
-text. Place the footnotes at the bottom of the page on which they appear.
-Precede the footnote with a horizontal rule of 2~inches
-(12~picas).\footnote{Sample of the second footnote}
+After exploring the literature, we identified an unexplored research area. While building networks between products is not uncommon, typically these networks are grown manually or through more direct probabilistic modeling. CITATION HERE=https://www3.nd.edu/~dial/papers/ASONAMJ10.pdf. However after experimentation, we identified an underlying structure in our market baskets. Rather than thinking about them as products, we borrowed from statistical natural language processing and thought of them as words or tokens. This leverages the concept of an latent network in the data, but also the concept of a semantic structure to the data. This inspired us to turn the baskets into bags of words that included the Fineline Number and the Department description.
 
-\subsection{Figures}
+After creating this structure, we learned a Word2Vec model (CITATION) using the continuous bag of words approach in order to attempt to extract the underlying product network and relationships. We then use this information when creating our model by adding the similar "words" into the current market basket. After which we borrow for NLP again and perform a TFIDF (http://www.emeraldinsight.com/doi/abs/10.1108/eb026526) feature weighting in order to reweight the features. We then pass this into a simple two layeer neural network tuned with cross entropy loss. Doing so allowed us to improve on our naive models in terms of both test and validation accuracy by several points.
 
-All artwork must be neat, clean, and legible. Lines should be dark
-enough for purposes of reproduction; art work should not be
-hand-drawn. The figure number and caption always appear after the
-figure. Place one line space before the figure caption, and one line
-space after the figure. The figure caption is lower case (except for
-first word and proper nouns); figures are numbered consecutively.
+We think that this approach holds much promise.
 
-Make sure the figure caption does not get separated from the figure.
-Leave sufficient space to avoid splitting the figure and figure caption.
 
-You may use color figures. 
-However, it is best for the
-figure captions and the paper body to make sense if the paper is printed
-either in black/white or in color.
-\begin{figure}[h]
-\begin{center}
-%\framebox[4.0in]{$\;$}
-\fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
-\end{center}
-\caption{Sample figure caption.}
-\end{figure}
+\section{Data Exploration and Categorization}
+A better understanding of the dataset helps feature extraction and better pre-processing for training. In this dataset, we explore the meaning of the label, TripType, and why Walmart assigns certain trip types to some transactions. A quick dive into the dataset offers the following facts:
+(1) All transactions with negative total scan count is assigned with TripType 999.
+(2) Transactions with more than 50% of Financial services and number of scan count smaller than 4 are assigned with TripType 3.
+(3) Transactions with more than 50% of Pharmacy are generally assigned to TripType 4 and 5, where 4 is of pharmacy OTC and 5 is of misture of pharmacy OTC, RC and Optical.
+(4) Food and drinks transactions are assigned with TripType 6, 7, and 8, where 6 is on snacks and liquor, 7 is on main meals (either cooked or uncooked), and 8 is a mixture of stuffs in 6 or 7 but with a small amount.
+(5) A small amount mixture of living products, e.g., home, auto, electronics, clothing, shoes, beauty is assigned with TripType 9.
+(6) A medium level of scans of lawn garden, households goods, cook and dine and toys are assigned with TriyType 12.
+…
+A generalization from these facts is that TripType is basically determined by (a) the size of the transaction (i.e. the total number of scan counts), (b) the structure of the transaction (i.e. the proportion of scan count on each department), and (c) the impurity of the transaction (i.e. entropy). 
+Figure X shows the distribution of trip types on its average transaction size and transaction impurity.
 
-\subsection{Tables}
+\section{Future Research}
 
-All tables must be centered, neat, clean and legible. Do not use hand-drawn
-tables. The table number and title always appear before the table. See
-Table~\ref{sample-table}.
 
-Place one line space before the table title, one line space after the table
-title, and one line space after the table. The table title must be lower case
-(except for first word and proper nouns); tables are numbered consecutively.
-
-\begin{table}[t]
-\caption{Sample table title}
-\label{sample-table}
-\begin{center}
-\begin{tabular}{ll}
-\multicolumn{1}{c}{\bf PART}  &\multicolumn{1}{c}{\bf DESCRIPTION}
-\\ \hline \\
-Dendrite         &Input terminal \\
-Axon             &Output terminal \\
-Soma             &Cell body (contains cell nucleus) \\
-\end{tabular}
-\end{center}
-\end{table}
-
-\section{Final instructions}
-Do not change any aspects of the formatting parameters in the style files.
-In particular, do not modify the width or length of the rectangle the text
-should fit into, and do not change font sizes (except perhaps in the
-\textbf{References} section; see below). Please note that pages should be
-numbered.
-
-\section{Preparing PostScript or PDF files}
-
-Please prepare PostScript or PDF files with paper size ``US Letter'', and
-not, for example, ``A4''. The -t
-letter option on dvips will produce US Letter files.
-
-Fonts were the main cause of problems in the past years. Your PDF file must
-only contain Type 1 or Embedded TrueType fonts. Here are a few instructions
-to achieve this.
-
-\begin{itemize}
-
-\item You can check which fonts a PDF files uses.  In Acrobat Reader,
-select the menu Files$>$Document Properties$>$Fonts and select Show All Fonts. You can
-also use the program \verb+pdffonts+ which comes with \verb+xpdf+ and is
-available out-of-the-box on most Linux machines.
-
-\item The IEEE has recommendations for generating PDF files whose fonts
-are also acceptable for NIPS. Please see
-\url{http://www.emfield.org/icuwb2010/downloads/IEEE-PDF-SpecV32.pdf}
-
-\item LaTeX users:
-
-\begin{itemize}
-
-\item Consider directly generating PDF files using \verb+pdflatex+
-(especially if you are a MiKTeX user). 
-PDF figures must be substituted for EPS figures, however.
-
-\item Otherwise, please generate your PostScript and PDF files with the following commands:
-\begin{verbatim} 
-dvips mypaper.dvi -t letter -Ppdf -G0 -o mypaper.ps
-ps2pdf mypaper.ps mypaper.pdf
-\end{verbatim}
-
-Check that the PDF files only contains Type 1 fonts. 
-%For the final version, please send us both the Postscript file and
-%the PDF file. 
-
-\item xfig "patterned" shapes are implemented with 
-bitmap fonts.  Use "solid" shapes instead. 
-\item The \verb+\bbold+ package almost always uses bitmap
-fonts.  You can try the equivalent AMS Fonts with command
-\begin{verbatim}
-\usepackage[psamsfonts]{amssymb}
-\end{verbatim}
- or use the following workaround for reals, natural and complex: 
-\begin{verbatim}
-\newcommand{\RR}{I\!\!R} %real numbers
-\newcommand{\Nat}{I\!\!N} %natural numbers 
-\newcommand{\CC}{I\!\!\!\!C} %complex numbers
-\end{verbatim}
-
-\item Sometimes the problematic fonts are used in figures
-included in LaTeX files. The ghostscript program \verb+eps2eps+ is the simplest
-way to clean such figures. For black and white figures, slightly better
-results can be achieved with program \verb+potrace+.
-\end{itemize}
-\item MSWord and Windows users (via PDF file):
-\begin{itemize}
-\item Install the Microsoft Save as PDF Office 2007 Add-in from
-\url{http://www.microsoft.com/downloads/details.aspx?displaylang=en\&familyid=4d951911-3e7e-4ae6-b059-a2e79ed87041}
-\item Select ``Save or Publish to PDF'' from the Office or File menu
-\end{itemize}
-\item MSWord and Mac OS X users (via PDF file):
-\begin{itemize}
-\item From the print menu, click the PDF drop-down box, and select ``Save
-as PDF...''
-\end{itemize}
-\item MSWord and Windows users (via PS file):
-\begin{itemize}
-\item To create a new printer
-on your computer, install the AdobePS printer driver and the Adobe Distiller PPD file from
-\url{http://www.adobe.com/support/downloads/detail.jsp?ftpID=204} {\it Note:} You must reboot your PC after installing the
-AdobePS driver for it to take effect.
-\item To produce the ps file, select ``Print'' from the MS app, choose
-the installed AdobePS printer, click on ``Properties'', click on ``Advanced.''
-\item Set ``TrueType Font'' to be ``Download as Softfont''
-\item Open the ``PostScript Options'' folder
-\item Select ``PostScript Output Option'' to be ``Optimize for Portability''
-\item Select ``TrueType Font Download Option'' to be ``Outline''
-\item Select ``Send PostScript Error Handler'' to be ``No''
-\item Click ``OK'' three times, print your file.
-\item Now, use Adobe Acrobat Distiller or ps2pdf to create a PDF file from
-the PS file. In Acrobat, check the option ``Embed all fonts'' if
-applicable.
-\end{itemize}
-
-\end{itemize}
-If your file contains Type 3 fonts or non embedded TrueType fonts, we will
-ask you to fix it. 
-
-\subsection{Margins in LaTeX}
- 
-Most of the margin problems come from figures positioned by hand using
-\verb+\special+ or other commands. We suggest using the command
-\verb+\includegraphics+
-from the graphicx package. Always specify the figure width as a multiple of
-the line width as in the example below using .eps graphics
-\begin{verbatim}
-   \usepackage[dvips]{graphicx} ... 
-   \includegraphics[width=0.8\linewidth]{myfile.eps} 
-\end{verbatim}
-or % Apr 2009 addition
-\begin{verbatim}
-   \usepackage[pdftex]{graphicx} ... 
-   \includegraphics[width=0.8\linewidth]{myfile.pdf} 
-\end{verbatim}
-for .pdf graphics. 
-See section 4.4 in the graphics bundle documentation (\url{http://www.ctan.org/tex-archive/macros/latex/required/graphics/grfguide.ps}) 
- 
-A number of width problems arise when LaTeX cannot properly hyphenate a
-line. Please give LaTeX hyphenation hints using the \verb+\-+ command.
+\section{Conclusion}
+In this paper we introduce the concept of a 
 
 
 \subsubsection*{Acknowledgments}
@@ -351,6 +144,7 @@ final paper.
 \bibliography{references.bib}
 \bibliographystyle{small}
 
+FIX ME 
 References follow the acknowledgments. Use unnumbered third level heading for
 the references. Any choice of citation style is acceptable as long as you are
 consistent. It is permissible to reduce the font size to `small' (9-point) 
@@ -367,10 +161,6 @@ Systems 7}, pp. 609-616. Cambridge, MA: MIT Press.
 Realistic Neural Models with the GEneral NEural SImulation System.}
 New York: TELOS/Springer-Verlag.
 
-[3] Hasselmo, M.E., Schnell, E. \& Barkai, E. (1995) Dynamics of learning
-and recall at excitatory recurrent synapses and cholinergic modulation
-in rat hippocampal region CA3. {\it Journal of Neuroscience}
-{\bf 15}(7):5249-5262.
-}
+
 
 \end{document}
